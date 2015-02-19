@@ -1,6 +1,6 @@
 # ReflexAPI
 
-ReflexAPI is a .NET application that allows users to retrieve the current list of [Reflex] servers from Valve Software's Steam Master server. It is capable of returning the information as JSON (default), XML, and in other formats.
+ReflexAPI is a .NET (C#) back-end web service that allows users to retrieve the current list of [Reflex] servers from Valve Software's Steam Master server. It is capable of returning the information as JSON (default), XML, as well as in other formats.
 
 It features the following open source technologies:
 
@@ -14,9 +14,10 @@ It features the following open source technologies:
 
 ### Installation
 
-Build in Visual Studio 2012 or higher.
-If running in Linux, install [Mono] and its dependencies. If you are proxying requests install [nginx]
-preferably, as opposed to the mono Apache module.
+- Build in Visual Studio 2012 or higher.
+- If running on Linux, install [Mono] and its dependencies.
+- If you are proxying requests, I'd recommend installing [nginx] instead of the mono Apache module.
+- By default, the API will listen on http://*:29405/
 
 ### TODO
 
@@ -25,14 +26,14 @@ preferably, as opposed to the mono Apache module.
 
 ### Help / Issues
 
-I can be found under the name "syncore" on [QuakeNet] IRC in the #reflex channel.
-Alternatively, open up an issue on Github.
+I can be found under the name "syncore" on QuakeNet IRC - irc.quakenet.org - in the #reflex channel.
+Alternatively, open up an [issue] on Github.
 
 License
 ----
 See LICENSE.md
 
-[QuakeNet]:irc://irc.quakenet.org/reflex
+[issue]:https://github.com/syncore/ReflexAPI/issues
 [Mono]:http://www.mono-project.com/download/
 [nginx]:http://www.nginx.com
 [Reflex]:http://www.reflexfps.net
