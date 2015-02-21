@@ -5,7 +5,6 @@ using System.Net;
 using System.Reflection;
 using Reflexapi.Models;
 using ReflexApi.Models;
-using ReflexApi.SteamData;
 using ReflexApi.Util;
 using ServiceStack;
 
@@ -84,9 +83,9 @@ namespace ReflexApi.Services
         /// <returns>A list of servers that meet the requirements of the request or an error.</returns>
         private PrivateQueryResponse HandleMultiServerQuery(PrivateQueryRequest request)
         {
-            var hostnames = request.Host.Trim().Split(',');
-            var ports = request.Port.Trim().Split(',');
-            var validationResult = CheckMultipleHostValidity(hostnames, ports);
+            var receivedHostnames = request.Host.Trim().Split(',');
+            var receivedPorts = request.Port.Trim().Split(',');
+            var validationResult = CheckMultipleHostValidity(receivedHostnames, receivedPorts);
 
             // Final validation
             if (validationResult != QueryResponseCode.Success)
@@ -95,37 +94,33 @@ namespace ReflexApi.Services
             }
 
             var toQuery = new List<IPEndPoint>();
-            var port = 0;
-            for (var i = 0; i < hostnames.Length; i++)
+
+            for (var i = 0; i < receivedHostnames.Length; i++)
             {
-                for (var j = 0; j < ports.Length; j++)
+                IPAddress[] ip;
+                try
                 {
-                    int.TryParse(ports[j], out port);
+                    ip = Dns.GetHostAddresses(receivedHostnames[i]);
                 }
-                if (port != 0)
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        var ips = Dns.GetHostAddresses(hostnames[i]);
-                        if (ips.Length > 0)
-                        {
-                            toQuery.Add(new IPEndPoint(ips[0], port));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LoggerUtil.LogInfoAndDebug(
-                            string.Format(
-                                "Manual multi-servery query: error resolving user specified host/ip: {0}:{1}. Exception: {2}"
-                                , request.Host, request.Port, ex.Message), LogClassType);
-                        return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
-                    }
+                    LoggerUtil.LogInfoAndDebug(
+                        string.Format("Error resolving user specified host/ip. Exception: {0}"
+                            , ex.Message), LogClassType);
+                    return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
                 }
+
+                if (ip.Length == 0)
+                    return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
+
+                int port;
+                // Already validated
+                int.TryParse(receivedPorts[i], out port);
+                toQuery.Add(new IPEndPoint(ip[0], port));
             }
 
             var sqp = new ServerQueryProcessor();
             var serversToReturn = sqp.QueryServers(toQuery);
-
             return new PrivateQueryResponse {count = serversToReturn.Count, servers = serversToReturn};
         }
 
@@ -140,33 +135,26 @@ namespace ReflexApi.Services
             {
                 return ReturnInvalidResponseDetails(QueryResponseCode.HostPortsInvalidError);
             }
-
-            var sqp = new ServerQueryProcessor();
-            int prt;
-            var serversToReturn = new List<ServerData>();
-
-            if (int.TryParse(request.Port, out prt))
+            IPAddress[] ip;
+            try
             {
-                try
-                {
-                    var ips = Dns.GetHostAddresses(request.Host);
-                    if (ips.Length > 0)
-                    {
-                        serversToReturn = sqp.QueryServers(new IPEndPoint(ips[0], prt));
-                    }
-                    else
-                    {
-                        return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LoggerUtil.LogInfoAndDebug(
-                        string.Format("Error resolving user specified host/ip: {0}:{1} Exception: {2}"
-                            , request.Host, request.Port, ex.Message), LogClassType);
-                    return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
-                }
+                ip = Dns.GetHostAddresses(request.Host);
             }
+            catch (Exception ex)
+            {
+                LoggerUtil.LogInfoAndDebug(
+                    string.Format("Error resolving user specified host/ip. Exception: {0}"
+                        , ex.Message), LogClassType);
+                return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
+            }
+            if (ip.Length == 0)
+                return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
+
+            int port;
+            // Already validated
+            int.TryParse(request.Port, out port);
+            var sqp = new ServerQueryProcessor();
+            var serversToReturn = sqp.QueryServers(new IPEndPoint(ip[0], port));
 
             return new PrivateQueryResponse {count = serversToReturn.Count, servers = serversToReturn};
         }

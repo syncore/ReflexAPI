@@ -5,7 +5,6 @@ using System.Net;
 using System.Reflection;
 using Reflexapi.Models;
 using ReflexApi.Models;
-using ReflexApi.SteamData;
 using ReflexApi.Util;
 using ServiceStack;
 
@@ -81,9 +80,9 @@ namespace ReflexApi.Services
         /// <returns>A list of servers that meet the requirements of the request or an error.</returns>
         private ServerQueryResponse HandleMultiServerQuery(ServerQueryRequest request)
         {
-            string[] hostnames = request.Host.Trim().Split(',');
-            string[] ports = request.Port.Trim().Split(',');
-            var validationResult = CheckMultipleHostValidity(hostnames, ports);
+            var receivedHostnames = request.Host.Trim().Split(',');
+            var receivedPorts = request.Port.Trim().Split(',');
+            var validationResult = CheckMultipleHostValidity(receivedHostnames, receivedPorts);
 
             // Final validation
             if (validationResult != QueryResponseCode.Success)
@@ -92,45 +91,38 @@ namespace ReflexApi.Services
             }
 
             var toQuery = new List<IPEndPoint>();
-            int port = 0;
-            for (int i = 0; i < hostnames.Length; i++)
+
+            for (var i = 0; i < receivedHostnames.Length; i++)
             {
-                for (int j = 0; j < ports.Length; j++)
+                IPAddress[] ip;
+                try
                 {
-                    int.TryParse(ports[j], out port);
+                    ip = Dns.GetHostAddresses(receivedHostnames[i]);
                 }
-                if (port != 0)
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        var ips = Dns.GetHostAddresses(hostnames[i]);
-                        if (ips.Length > 0)
-                        {
-                            // Only allow server queries for servers that have already been indexed
-                            // (primarily for security concerns)
-                            if (MasterServerListContainsHost(ips[0]))
-                            {
-                                toQuery.Add(new IPEndPoint(ips[0], port));
-                            }
-                            else
-                            {
-                                return ReturnInvalidResponseDetails(QueryResponseCode.HostNotIndexedError);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LoggerUtil.LogInfoAndDebug(
-                            string.Format("Error resolving user specified host/ip. Exception: {0}"
-                                , ex.Message), LogClassType);
-                        return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
-                    }
+                    LoggerUtil.LogInfoAndDebug(
+                        string.Format("Error resolving user specified host/ip. Exception: {0}"
+                            , ex.Message), LogClassType);
+                    return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
                 }
+
+                if (ip.Length == 0)
+                    return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
+
+                if (!MasterServerListContainsHost(ip[0]))
+                    // Only allow server queries for previously indexed servers
+                    return ReturnInvalidResponseDetails(QueryResponseCode.HostNotIndexedError);
+
+                int port;
+                // Already validated
+                int.TryParse(receivedPorts[i], out port);
+                toQuery.Add(new IPEndPoint(ip[0], port));
             }
 
             var sqp = new ServerQueryProcessor();
             var serversToReturn = sqp.QueryServers(toQuery);
-            return new ServerQueryResponse { count = serversToReturn.Count, servers = serversToReturn };
+            return new ServerQueryResponse {count = serversToReturn.Count, servers = serversToReturn};
         }
 
         /// <summary>
@@ -144,44 +136,31 @@ namespace ReflexApi.Services
             {
                 return ReturnInvalidResponseDetails(QueryResponseCode.HostPortsInvalidError);
             }
-
-            var sqp = new ServerQueryProcessor();
-            int prt;
-            var serversToReturn = new List<ServerData>();
-
-            if (int.TryParse(request.Port, out prt))
+            IPAddress[] ip;
+            try
             {
-                try
-                {
-                    var ips = Dns.GetHostAddresses(request.Host);
-                    if (ips.Length > 0)
-                    {
-                        // Only allow server queries for servers that have already been indexed
-                        // (primarily for security concerns)
-                        if (MasterServerListContainsHost(ips[0]))
-                        {
-                            serversToReturn = sqp.QueryServers(new IPEndPoint(ips[0], prt));
-                        }
-                        else
-                        {
-                            return ReturnInvalidResponseDetails(QueryResponseCode.HostNotIndexedError);
-                        }
-                    }
-                    else
-                    {
-                        return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LoggerUtil.LogInfoAndDebug(
-                        string.Format("Error resolving user specified host/ip. Exception: {0}"
-                            , ex.Message), LogClassType);
-                    return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
-                }
+                ip = Dns.GetHostAddresses(request.Host);
             }
+            catch (Exception ex)
+            {
+                LoggerUtil.LogInfoAndDebug(
+                    string.Format("Error resolving user specified host/ip. Exception: {0}"
+                        , ex.Message), LogClassType);
+                return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
+            }
+            if (ip.Length == 0)
+                return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
 
-            return new ServerQueryResponse { count = serversToReturn.Count, servers = serversToReturn };
+            if (!MasterServerListContainsHost(ip[0]))
+                return ReturnInvalidResponseDetails(QueryResponseCode.HostNotIndexedError);
+
+            int port;
+            // Already validated
+            int.TryParse(request.Port, out port);
+            var sqp = new ServerQueryProcessor();
+            var serversToReturn = sqp.QueryServers(new IPEndPoint(ip[0], port));
+
+            return new ServerQueryResponse {count = serversToReturn.Count, servers = serversToReturn};
         }
 
         /// <summary>
@@ -192,13 +171,13 @@ namespace ReflexApi.Services
         /// <returns><c>true</c> if all of the hosts and ports are valid, otherwise <c>false</c>if any are invalid.</returns>
         private bool HostsPortsValid(string[] hostnames, string[] ports)
         {
-            bool portsValid = false;
-            bool hostsValid = false;
-            for (int i = 0; i < hostnames.Length; i++)
+            var portsValid = false;
+            var hostsValid = false;
+            for (var i = 0; i < hostnames.Length; i++)
             {
                 hostsValid = (Uri.CheckHostName(hostnames[i]) != UriHostNameType.Unknown);
             }
-            for (int i = 0; i < ports.Length; i++)
+            for (var i = 0; i < ports.Length; i++)
             {
                 int portNum;
                 if (!int.TryParse(ports[i], out portNum))
@@ -234,7 +213,7 @@ namespace ReflexApi.Services
         private bool HostsPortsValid(string hostname, string port)
         {
             bool portValid;
-            bool hostValid = (Uri.CheckHostName(hostname) != UriHostNameType.Unknown);
+            var hostValid = (Uri.CheckHostName(hostname) != UriHostNameType.Unknown);
             int portNum;
             if (!int.TryParse(port, out portNum))
             {
@@ -260,7 +239,7 @@ namespace ReflexApi.Services
         }
 
         /// <summary>
-        /// Checks whether the master server list contains the specified ip.
+        ///     Checks whether the master server list contains the specified ip.
         /// </summary>
         /// <param name="ip">The ip.</param>
         /// <returns><c>true</c> if the master server list contains the specified ip, otherwise <c>false</c>.</returns>
@@ -280,7 +259,7 @@ namespace ReflexApi.Services
         private ServerQueryResponse ReturnInvalidResponseDetails(QueryResponseCode qrc)
         {
             LoggerUtil.LogInfoAndDebug(qrc.LoggerMessage, LogClassType);
-            return new ServerQueryResponse { error = qrc.UserMessage };
+            return new ServerQueryResponse {error = qrc.UserMessage};
         }
     }
 }
