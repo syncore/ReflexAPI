@@ -33,19 +33,15 @@ namespace ReflexApi.Services
 
             // Check if user specified the server's hostname.
             if (string.IsNullOrEmpty(request.Host))
-            {
                 return ReturnInvalidResponseDetails(QueryResponseCode.HostNotSpecifiedError);
-            }
+
             // Check if user specified the server's port.
             if (string.IsNullOrEmpty(request.Port))
-            {
                 return ReturnInvalidResponseDetails(QueryResponseCode.PortNotSpecifiedError);
-            }
+
             // Multi-query
             if ((request.Host.Contains(',') && (request.Port.Contains(','))))
-            {
                 return HandleMultiServerQuery(request);
-            }
 
             return HandleSingleServerQuery(request);
         }
@@ -59,17 +55,14 @@ namespace ReflexApi.Services
         private QueryResponseCode CheckMultipleHostValidity(string[] hostnames, string[] ports)
         {
             if (hostnames.Length != ports.Length)
-            {
                 return QueryResponseCode.HostPortsMismatchError;
-            }
+
             if (hostnames.Length > MaxHostsAllowed)
-            {
                 return QueryResponseCode.HostLimitExceededError;
-            }
+
             if (!HostsPortsValid(hostnames, ports))
-            {
                 return QueryResponseCode.HostPortsInvalidError;
-            }
+
             return QueryResponseCode.Success;
         }
 
@@ -86,9 +79,7 @@ namespace ReflexApi.Services
 
             // Final validation
             if (validationResult != QueryResponseCode.Success)
-            {
                 return ReturnInvalidResponseDetails(validationResult);
-            }
 
             var toQuery = new List<IPEndPoint>();
 
@@ -133,9 +124,8 @@ namespace ReflexApi.Services
         private ServerQueryResponse HandleSingleServerQuery(ServerQueryRequest request)
         {
             if (!HostsPortsValid(request.Host, request.Port))
-            {
                 return ReturnInvalidResponseDetails(QueryResponseCode.HostPortsInvalidError);
-            }
+
             IPAddress[] ip;
             try
             {

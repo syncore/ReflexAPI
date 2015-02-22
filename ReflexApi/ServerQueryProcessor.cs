@@ -19,12 +19,12 @@ namespace ReflexApi
     public class ServerQueryProcessor
     {
         private const int ReceiveTimeoutMsec = 2000;
+        private readonly HostCountryRetriever _countryRetriever;
         private static readonly Type LogClassType = MethodBase.GetCurrentMethod().DeclaringType;
         private static readonly ILog Logger = LogManager.GetLogger(LogClassType);
-        private readonly HostCountryRetriever _countryRetriever;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ServerQueryProcessor"/> class.
+        ///     Initializes a new instance of the <see cref="ServerQueryProcessor" /> class.
         /// </summary>
         public ServerQueryProcessor()
         {
@@ -40,7 +40,7 @@ namespace ReflexApi
         public int TotalServers { get; set; }
 
         /// <summary>
-        /// Gets all of the servers from the Steam Master server.
+        ///     Gets all of the servers from the Steam Master server.
         /// </summary>
         /// <returns><c>true</c> if Valve's master server could be contacted, otherwise <c>false</c>.</returns>
         public bool GetAllServers()
@@ -51,7 +51,7 @@ namespace ReflexApi
 
             try
             {
-                var filter = new Filter { Region = Region.RestOfTheWorld, Game = Game.Reflex };
+                var filter = new Filter {Region = Region.RestOfTheWorld, Game = Game.Reflex};
                 serversReceivedFromMaster = masterServerQuery.GetServers(filter, ReceiveTimeoutMsec);
             }
             catch (Exception ex)
@@ -64,7 +64,7 @@ namespace ReflexApi
 
             var failedServers = new List<string>();
             TotalServers = serversReceivedFromMaster.Count;
-            int queryNum = 0;
+            var queryNum = 0;
 
             LoggerUtil.LogInfoAndDebug(string.Format("Total servers to query: {0}", TotalServers),
                 LogClassType);
@@ -98,7 +98,7 @@ namespace ReflexApi
         ///     Queries the specified servers.
         /// </summary>
         /// <param name="serversToQuery">The servers to query.</param>
-        /// <returns>A list of <see cref="ServerData"/> objects containing the successfully queried server information.</returns>
+        /// <returns>A list of <see cref="ServerData" /> objects containing the successfully queried server information.</returns>
         public List<ServerData> QueryServers(List<IPEndPoint> serversToQuery)
         {
             var successfulQueries = new List<ServerData>();
@@ -123,7 +123,7 @@ namespace ReflexApi
         ///     Queries a single specified server.
         /// </summary>
         /// <param name="serverToQuery">The server to query.</param>
-        /// <returns>A list of <see cref="ServerData"/> objects containing the successfully queried server information.</returns>
+        /// <returns>A list of <see cref="ServerData" /> objects containing the successfully queried server information.</returns>
         public List<ServerData> QueryServers(IPEndPoint serverToQuery)
         {
             var successfulQueries = new List<ServerData>();
@@ -146,7 +146,10 @@ namespace ReflexApi
         ///     Creates the server data information (object) for a given ip and port.
         /// </summary>
         /// <param name="serverAddress">The server address.</param>
-        /// <returns>The server's information as a <see cref="ServerData"/> object if the query was successful, otherwise returns null.</returns>
+        /// <returns>
+        ///     The server's information as a <see cref="ServerData" /> object if the query was successful, otherwise returns
+        ///     null.
+        /// </returns>
         private ServerData CreateServerDataInfo(IPEndPoint serverAddress)
         {
             var query = new ServerQuery(serverAddress);
@@ -161,7 +164,7 @@ namespace ReflexApi
                     score = player.Score,
                     connectedFor = Math.Round(player.Duration, 2)
                 }).ToList();
-                
+
                 // Query the SQLite DB for the country info based on the IP
                 var countryInfo = _countryRetriever.GetCountryInfo(serverAddress);
 
@@ -189,11 +192,14 @@ namespace ReflexApi
                     port = serverInfo.ExtraData.Port,
                     steamIdServer = serverInfo.ExtraData.SignedServerSteamId,
                     // The very first server builds ("Reflex Build # ##") do not list keywords, so this is needed
-                    gametype = ((string.IsNullOrEmpty(serverInfo.ExtraData.Keywords)) ? "" : serverInfo.ExtraData.Keywords),
+                    gametype =
+                        ((string.IsNullOrEmpty(serverInfo.ExtraData.Keywords))
+                            ? ""
+                            : serverInfo.ExtraData.Keywords),
                     //keywords = serverInfo.ExtraData.Keywords,
                     steamIdGame = serverInfo.ExtraData.GameSteamId,
                     steamPort = serverAddress.Port,
-                    players = players,
+                    players = players
                 };
                 sData = sd;
             }
