@@ -38,40 +38,41 @@ ReflexAPI incorporates the following open source technologies:
  - **Retrieve filtered list of servers**
 	 - `GET /servers?filterName1=type1&filterName2=type2&filterNameN=typeN`
 		 - This is used to further filter the master server list based on certain criteria such as whether the server has players, is running a certain map, or requires a password, etc. In Reflex's current state, some of these properties will be the same for all servers, but are included right now so they can be used when they are applicable to future Reflex builds; for example, the server's operating system type will vary once Linux dedicated binaries are available.
-		 - Here are the possible filters. The format is: *data type | filter name. The filter name is case insensitive:*
+		 - Here are the possible filters. The format is: *data type: filter name. The filter name is case insensitive:*
 
-		 - **boolean | *hasPassword***
+		 - *boolean: hasPassword*
 			 - **true**: Show servers that are password protected.
 			 - **false**: Show servers that are not password protected.
 			 - `GET /servers?hasPassword=true`
-		 - **boolean | *hasPlayers***
+		 - *boolean: hasPlayers*
 			 - **true**: Show servers with active players.
 			 - **false**: Show only empty servers.
 			 - `GET /servers?hasPlayers=true`
-		 - **boolean | *hasVac***
+		 - *boolean: hasVac*
 		 	 - **true**: Show servers with Valve Anti Cheat enabled.
 			 - **false**: Show servers without Valve Anti Cheat enabled.
 			 - `GET /servers?hasVac=true`
-		 - **boolean | *isNotFull***
+		 - *boolean: isNotFull*
 		 	 - **true**: Show servers that are not full.
 			 - **false**: Show both full and non-full servers.
 			 - `GET /servers?isNotFull=true`
-		 - **string | *countryCode***
+		 - *string: countryCode*
 		 	 - Show servers from a specified two letter country code.
 			 - `GET /servers?countryCode=US`
-		 - **string | *map***
+		 - *string: map*
 		 	 - Show servers currently playing the specified map.
 			 - `GET /servers?map=bdm3`
-		 - **string | *os***
+		 - *string: os*
 		 	 - Show servers currently running the specified operating system.
 			 - `GET /servers?os=windows`
-		 - **string | *version***
+		 - *string: version*
 		 	 - Show servers currently running the specified Reflex build.
 			 - `GET /servers?version=0.30.4`
 		 - ***Note*: it is possible to chain filters together:**
 		 	 - For example, to retrieve all Microsoft Windows servers running Reflex Build 0.30.4 in the United States on map cpm3 with active players:
 			 - `GET /servers?os=windows&version=0.30.4&countryCode=US&map=cpm3&hasPlayers=true`
- - **Querying servers**
+ 
+- **Querying servers**
 	 - `GET /queryserver?host=address1,address2,address3...address10&port=port1,port2,port3...port10`
 		 - This is used to retrieve the most up-to-date, real-time information for up to ten (10) Reflex servers at a time.
 			 - ***Notes:***
@@ -86,7 +87,7 @@ ReflexAPI incorporates the following open source technologies:
 
 ### Help / Issues
 
-I can be found under the name "syncore" on QuakeNet IRC - **irc.quakenet.org** - in the **#reflex** channel.
+I can be found under the name "syncore" on QuakeNet IRC - irc.quakenet.org - in the #reflex channel.
 The preferable method of contact would be for you to open up an [issue] on Github.
 
 ### TODO
@@ -97,8 +98,9 @@ The preferable method of contact would be for you to open up an [issue] on Githu
 
 License
 ----
-See LICENSE.md
+See [LICENSE.md]
 
+[LICENSE.md]:https://github.com/syncore/ReflexAPI/blob/master/LICENSE.md
 [issue]:https://github.com/syncore/ReflexAPI/issues
 [Mono]:http://www.mono-project.com/download/
 [nginx]:http://www.nginx.com
