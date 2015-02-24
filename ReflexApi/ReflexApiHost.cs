@@ -5,15 +5,16 @@ using Funq;
 using log4net.Config;
 using Quartz;
 using Quartz.Impl;
-using ReflexApi.Util;
+using ReflexAPI.Util;
 using ServiceStack;
+// ReSharper disable InconsistentNaming
 
-namespace ReflexApi
+namespace ReflexAPI
 {
     /// <summary>
     /// ServiceStack-related API class.
     /// </summary>
-    public class ReflexApiAppHost : AppSelfHostBase
+    public class ReflexAPIAppHost : AppSelfHostBase
     {
         private const int SecsWaitBeforeInitialRetrieval = 10;
         private const int DoRetrievalEverySecs = 90;
@@ -22,8 +23,8 @@ namespace ReflexApi
         /// <summary>
         /// Initializes a new instance of the ServiceStack application, with the specified name and assembly containing the services.
         /// </summary>
-        public ReflexApiAppHost()
-            : base("Reflex Server API by syncore", typeof(ReflexApiAppHost).Assembly)
+        public ReflexAPIAppHost()
+            : base("Reflex Server API by syncore", typeof(ReflexAPIAppHost).Assembly)
         {
             LoggerUtil.LogInfoAndDebug(
                 string.Format("ReflexApiAppHost Init() called. Initial server list retrieval shoud occur in roughly {0} seconds.",

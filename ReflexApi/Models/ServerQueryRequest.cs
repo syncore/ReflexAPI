@@ -1,7 +1,7 @@
-﻿using Reflexapi.Models;
+﻿using ReflexAPI.Models;
 using ServiceStack;
 
-namespace ReflexApi.Models
+namespace ReflexAPI.Models
 {
     /// <summary>
     ///     Class responsible for accepting the user's request (specified in URL) to query a server.

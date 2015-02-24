@@ -3,12 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReflexApi", "ReflexApi\ReflexApi.csproj", "{5A4798C2-7B7A-4F1F-ABFD-61EAE5AC0E59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReflexAPI", "ReflexAPI\ReflexAPI.csproj", "{5A4798C2-7B7A-4F1F-ABFD-61EAE5AC0E59}"
 	ProjectSection(ProjectDependencies) = postProject
 		{32374DC6-BFD1-4F95-8C47-702F35D054C3} = {32374DC6-BFD1-4F95-8C47-702F35D054C3}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamInfo", "external\SteamInfo\SteamInfo\SteamInfo.csproj", "{32374DC6-BFD1-4F95-8C47-702F35D054C3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{52A739A7-587E-4AD4-9D9C-C9755722B58A}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

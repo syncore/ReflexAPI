@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using Reflexapi.Models;
-using ReflexApi.Models;
-using ReflexApi.Util;
+using ReflexAPI.Models;
+using ReflexAPI.Util;
 using ServiceStack;
 
-namespace ReflexApi.Services
+namespace ReflexAPI.Services
 {
     /// <summary>
     ///     Class responsible for handling a user's (unlisted) server query request.
@@ -41,7 +40,7 @@ namespace ReflexApi.Services
             // Check if user specified the server's port.
             if (string.IsNullOrEmpty(request.Port))
                 return ReturnInvalidResponseDetails(QueryResponseCode.PortNotSpecifiedError);
-            
+
             // Multi-query
             if ((request.Host.Contains(',') && (request.Port.Contains(','))))
                 return HandleMultiServerQuery(request);
@@ -111,8 +110,14 @@ namespace ReflexApi.Services
             }
 
             var sqp = new ServerQueryProcessor();
-            var serversToReturn = sqp.QueryServers(toQuery);
-            return new PrivateQueryResponse {count = serversToReturn.Count, servers = serversToReturn};
+            var queryResults = sqp.QueryServers(toQuery);
+            return new PrivateQueryResponse
+            {
+                servers = queryResults.servers,
+                count = queryResults.servers.Count,
+                failedServers = queryResults.failedServers,
+                failedCount = queryResults.failedServers.Count
+            };
         }
 
         /// <summary>
@@ -144,9 +149,15 @@ namespace ReflexApi.Services
             // Already validated
             int.TryParse(request.Port, out port);
             var sqp = new ServerQueryProcessor();
-            var serversToReturn = sqp.QueryServers(new IPEndPoint(ip[0], port));
+            var queryResults = sqp.QueryServers(new IPEndPoint(ip[0], port));
 
-            return new PrivateQueryResponse {count = serversToReturn.Count, servers = serversToReturn};
+            return new PrivateQueryResponse
+            {
+                servers = queryResults.servers,
+                count = queryResults.servers.Count,
+                failedServers = queryResults.failedServers,
+                failedCount = queryResults.failedServers.Count
+            };
         }
 
         /// <summary>

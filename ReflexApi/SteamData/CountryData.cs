@@ -1,5 +1,5 @@
 ﻿// ReSharper disable InconsistentNaming
-namespace ReflexApi.SteamData
+namespace ReflexAPI.SteamData
 {
     /// <summary>
     /// Model class that represents a server's country information.

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using ReflexApi.SteamData;
+using ReflexAPI.SteamData;
 
 // ReSharper disable InconsistentNaming
 
-namespace Reflexapi.Models
+namespace ReflexAPI.Models
 {
     /// <summary>
     ///     Class that contains the data to be sent in the response to the user's server query request.
@@ -30,6 +30,22 @@ namespace Reflexapi.Models
         ///     The error, if any.
         /// </value>
         public string error { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the number of servers that failed to query.
+        /// </summary>
+        /// <value>
+        ///     The number of servers that failed to query.
+        /// </value>
+        public int? failedCount { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the servers that failed to query.
+        /// </summary>
+        /// <value>
+        ///     The servers that failed to query.
+        /// </value>
+        public List<string> failedServers { get; set; }
 
         /// <summary>
         ///     Gets or sets the servers that are to be returned.

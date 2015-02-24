@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Reflexapi.Models;
-using ReflexApi.Enum;
+using ReflexAPI.Models;
+using ReflexAPI.Enum;
 using ServiceStack;
 
-namespace ReflexApi.Models
+namespace ReflexAPI.Models
 {
     /// <summary>
     ///     Class responsible for accepting the user's request (specified in URL) for the Reflex server list.

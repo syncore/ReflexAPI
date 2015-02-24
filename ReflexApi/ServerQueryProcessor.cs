@@ -4,24 +4,22 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using log4net;
-using ReflexApi.SteamData;
-using ReflexApi.Util;
+using ReflexAPI.SteamData;
+using ReflexAPI.Util;
 using SteamInfo.MasterServer;
 using SteamInfo.MasterServer.Filters;
 using SteamInfo.Server;
 using Environment = SteamInfo.Server.Environment;
 
-namespace ReflexApi
+namespace ReflexAPI
 {
     /// <summary>
     ///     Class responsible for querying the server information from Steam's master server.
     /// </summary>
     public class ServerQueryProcessor
     {
-        private const int ReceiveTimeoutMsec = 2000;
+        private const int ReceiveTimeoutMsec = 3300;
         private readonly HostCountryRetriever _countryRetriever;
-        private static readonly Type LogClassType = MethodBase.GetCurrentMethod().DeclaringType;
-        private static readonly ILog Logger = LogManager.GetLogger(LogClassType);
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ServerQueryProcessor" /> class.
@@ -98,48 +96,59 @@ namespace ReflexApi
         ///     Queries the specified servers.
         /// </summary>
         /// <param name="serversToQuery">The servers to query.</param>
-        /// <returns>A list of <see cref="ServerData" /> objects containing the successfully queried server information.</returns>
-        public List<ServerData> QueryServers(List<IPEndPoint> serversToQuery)
+        /// <returns>The results of the query as a <see cref="ServerQueryResults" /> object.</returns>
+        public ServerQueryResults QueryServers(List<IPEndPoint> serversToQuery)
         {
-            var successfulQueries = new List<ServerData>();
+            var results = new ServerQueryResults();
+            var successful = new List<ServerData>();
+            var failed = new List<string>();
+
             foreach (var server in serversToQuery)
             {
                 var queried = CreateServerDataInfo(server);
                 if (queried != null)
                 {
-                    successfulQueries.Add(queried);
+                    successful.Add(queried);
                 }
                 else
                 {
+                    failed.Add(string.Format("{0}:{1}", server.Address, server.Port));
                     LoggerUtil.LogInfoAndDebug(
                         string.Format("Manual user server query failed for {0}:{1}", server.Address,
                             server.Port), LogClassType);
                 }
             }
-            return successfulQueries;
+            results.servers = successful;
+            results.failedServers = failed;
+            return results;
         }
 
         /// <summary>
         ///     Queries a single specified server.
         /// </summary>
         /// <param name="serverToQuery">The server to query.</param>
-        /// <returns>A list of <see cref="ServerData" /> objects containing the successfully queried server information.</returns>
-        public List<ServerData> QueryServers(IPEndPoint serverToQuery)
+        /// <returns>The results of the query as a <see cref="ServerQueryResults" /> object.</returns>
+        public ServerQueryResults QueryServers(IPEndPoint serverToQuery)
         {
-            var successfulQueries = new List<ServerData>();
+            var results = new ServerQueryResults();
+            var successful = new List<ServerData>();
+            var failed = new List<string>();
             var queried = CreateServerDataInfo(serverToQuery);
             if (queried != null)
             {
-                successfulQueries.Add(queried);
+                successful.Add(queried);
             }
             else
             {
+                failed.Add(string.Format("{0}:{1}", serverToQuery.Address, serverToQuery.Port));
                 LoggerUtil.LogInfoAndDebug(
                     string.Format("Manual user server query failed for {0}:{1}", serverToQuery.Address,
                         serverToQuery.Port), LogClassType);
             }
 
-            return successfulQueries;
+            results.servers = successful;
+            results.failedServers = failed;
+            return results;
         }
 
         /// <summary>
@@ -213,5 +222,8 @@ namespace ReflexApi
 
             return sData;
         }
+
+        private static readonly Type LogClassType = MethodBase.GetCurrentMethod().DeclaringType;
+        private static readonly ILog Logger = LogManager.GetLogger(LogClassType);
     }
 }

@@ -3,7 +3,7 @@ using System.Text;
 
 // ReSharper disable InconsistentNaming
 
-namespace ReflexApi.SteamData
+namespace ReflexAPI.SteamData
 {
     /// <summary>
     ///     Model for Steam data that represents a Reflex server returned from Valve's master server.

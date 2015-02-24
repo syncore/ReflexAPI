@@ -2,7 +2,7 @@
 using System.Reflection;
 using log4net;
 
-namespace ReflexApi.Util
+namespace ReflexAPI.Util
 {
     /// <summary>
     ///     Utility class for logging operations.
@@ -11,7 +11,7 @@ namespace ReflexApi.Util
     {
         public static readonly Type LogClassType = MethodBase.GetCurrentMethod().DeclaringType;
         public static readonly ILog Logger = LogManager.GetLogger(LogClassType);
-        
+
         /// <summary>
         ///     Logs the current message to both the loggers specified for handling information and debug messages.
         /// </summary>

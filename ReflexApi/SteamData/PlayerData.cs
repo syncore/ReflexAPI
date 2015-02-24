@@ -1,5 +1,5 @@
 ﻿// ReSharper disable InconsistentNaming
-namespace ReflexApi.SteamData
+namespace ReflexAPI.SteamData
 {
     /// <summary>
     /// Model for Steam data that represents a player on a Reflex server.

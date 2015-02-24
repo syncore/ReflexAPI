@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using ReflexApi.SteamData;
+using ReflexAPI.SteamData;
 using ServiceStack;
 
 // ReSharper disable InconsistentNaming
 
-namespace Reflexapi.Models
+namespace ReflexAPI.Models
 {
     /// <summary>
     /// Class that contains the data to be sent in the response to the user's server list request.

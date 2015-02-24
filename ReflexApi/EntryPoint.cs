@@ -1,27 +1,35 @@
 ﻿using System;
 using System.Reflection;
-using ReflexApi.Util;
+using ReflexAPI.Util;
 
-namespace ReflexApi
+namespace ReflexAPI
 {
     /// <summary>
-    /// The entry point into the application.
+    ///     The entry point into the application.
     /// </summary>
     internal class EntryPoint
     {
         /// <summary>
-        /// The main method.
+        ///     The main method.
         /// </summary>
         /// <param name="args">The arguments.</param>
         private static void Main(string[] args)
         {
             var listen = args.Length == 0 ? "http://*:29405/" : args[0];
-            LoggerUtil.LogInfoAndDebug("Starting Reflex API...", MethodBase.GetCurrentMethod().DeclaringType);
-            
-            new ReflexApiAppHost().Init().Start(listen);
+            var version = typeof (EntryPoint).Assembly.GetName().Version;
+            var launchingInfo = string.Format("Starting ReflexAPI v{0} by syncore <syncore@syncore.org>",
+                version);
+            var launchedInfo =
+                string.Format("{0}ReflexAPI v{1} launched at {2} and is listening on {3}",
+                    Environment.NewLine, version, DateTime.Now, listen);
 
-            LoggerUtil.LogInfoAndDebug(string.Format("ReflexAPI Host launched at {0} and is listening on {1}",
-                DateTime.Now, listen), MethodBase.GetCurrentMethod().DeclaringType);
+            LoggerUtil.LogInfoAndDebug(launchingInfo, MethodBase.GetCurrentMethod().DeclaringType);
+            Console.WriteLine(launchingInfo);
+
+            new ReflexAPIAppHost().Init().Start(listen);
+
+            LoggerUtil.LogInfoAndDebug(launchedInfo, MethodBase.GetCurrentMethod().DeclaringType);
+            Console.WriteLine(launchedInfo);
         }
     }
 }

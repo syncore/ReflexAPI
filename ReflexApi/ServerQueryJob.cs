@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using Quartz;
-using ReflexApi.Util;
+using ReflexAPI.Util;
 
-namespace ReflexApi
+namespace ReflexAPI
 {
     /// <summary>
     ///     Quartz Job class responsible for calling the ServerQueryProcessor at timed intervals to refresh the server list.

@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using Reflexapi.Models;
-using ReflexApi.Models;
-using ReflexApi.Util;
+using ReflexAPI.Models;
+using ReflexAPI.Util;
 using ServiceStack;
 
-namespace ReflexApi.Services
+namespace ReflexAPI.Services
 {
     /// <summary>
     ///     Class responsible for handling a user's server query request.
@@ -82,6 +81,7 @@ namespace ReflexApi.Services
                 return ReturnInvalidResponseDetails(validationResult);
 
             var toQuery = new List<IPEndPoint>();
+            var unindexedServersToSkip = new List<string>();
 
             for (var i = 0; i < receivedHostnames.Length; i++)
             {
@@ -102,8 +102,11 @@ namespace ReflexApi.Services
                     return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
 
                 if (!MasterServerListContainsHost(ip[0]))
-                    // Only allow server queries for previously indexed servers
-                    return ReturnInvalidResponseDetails(QueryResponseCode.HostNotIndexedError);
+                {
+                    // Skip any unindexed servers instead of aborting entire operation.
+                    unindexedServersToSkip.Add(string.Format("{0}:{1}", ip[0], receivedPorts[i]));
+                    continue;
+                }
 
                 int port;
                 // Already validated
@@ -112,8 +115,16 @@ namespace ReflexApi.Services
             }
 
             var sqp = new ServerQueryProcessor();
-            var serversToReturn = sqp.QueryServers(toQuery);
-            return new ServerQueryResponse {count = serversToReturn.Count, servers = serversToReturn};
+            var queryResults = sqp.QueryServers(toQuery);
+            return new ServerQueryResponse
+            {
+                servers = queryResults.servers,
+                count = queryResults.servers.Count,
+                failedServers = queryResults.failedServers,
+                failedCount = queryResults.failedServers.Count,
+                unindexedServers = unindexedServersToSkip,
+                unindexedCount = unindexedServersToSkip.Count
+            };
         }
 
         /// <summary>
@@ -142,15 +153,22 @@ namespace ReflexApi.Services
                 return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
 
             if (!MasterServerListContainsHost(ip[0]))
+                // In the case of a single server query, abort entire operation if unindexed.
                 return ReturnInvalidResponseDetails(QueryResponseCode.HostNotIndexedError);
 
             int port;
             // Already validated
             int.TryParse(request.Port, out port);
             var sqp = new ServerQueryProcessor();
-            var serversToReturn = sqp.QueryServers(new IPEndPoint(ip[0], port));
+            var queryResults = sqp.QueryServers(new IPEndPoint(ip[0], port));
 
-            return new ServerQueryResponse {count = serversToReturn.Count, servers = serversToReturn};
+            return new ServerQueryResponse
+            {
+                count = queryResults.servers.Count,
+                servers = queryResults.servers,
+                failedCount = queryResults.failedServers.Count,
+                failedServers = queryResults.failedServers
+            };
         }
 
         /// <summary>
@@ -249,7 +267,7 @@ namespace ReflexApi.Services
         private ServerQueryResponse ReturnInvalidResponseDetails(QueryResponseCode qrc)
         {
             LoggerUtil.LogInfoAndDebug(qrc.LoggerMessage, LogClassType);
-            return new ServerQueryResponse {error = qrc.UserMessage};
+            return new ServerQueryResponse { error = qrc.UserMessage };
         }
     }
 }

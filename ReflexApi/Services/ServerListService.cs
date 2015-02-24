@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reflexapi.Models;
-using ReflexApi.Enum;
-using ReflexApi.Models;
-using ReflexApi.SteamData;
+using ReflexAPI.Enum;
+using ReflexAPI.Models;
+using ReflexAPI.SteamData;
 using ServiceStack;
 
-namespace ReflexApi.Services
+namespace ReflexAPI.Services
 {
     /// <summary>
     ///     Class responsible for handling a user's server list request.

@@ -1,4 +1,4 @@
-﻿namespace ReflexApi.Enum
+﻿namespace ReflexAPI.Enum
 {
     /// <summary>
     /// Enum that represents the different types of Reflex server filters

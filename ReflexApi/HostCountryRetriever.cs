@@ -3,10 +3,10 @@ using System.Data.SQLite;
 using System.IO;
 using System.Net;
 using System.Reflection;
-using ReflexApi.SteamData;
-using ReflexApi.Util;
+using ReflexAPI.SteamData;
+using ReflexAPI.Util;
 
-namespace ReflexApi
+namespace ReflexAPI
 {
     /// <summary>
     /// Class for retrieving country information from SQLite DB.
@@ -70,9 +70,9 @@ namespace ReflexApi
         }
 
         /// <summary>
-        /// Determines whether ReflexApi is running on Mono.
+        /// Determines whether ReflexAPI is running on Mono.
         /// </summary>
-        /// <returns><c>true</c> if ReflexApi is running on Mono,
+        /// <returns><c>true</c> if ReflexAPI is running on Mono,
         ///  otherwise <c>false</c> (running on Windows)</returns>
         private static bool IsRunningOnMono()
         {

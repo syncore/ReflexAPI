@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using ReflexApi.SteamData;
+using ReflexAPI.SteamData;
 
-namespace ReflexApi
+namespace ReflexAPI
 {
     /// <summary>
     ///     Static class that holds an in-memory representation of the current server list and servers that failed to query.

@@ -1,4 +1,4 @@
-﻿namespace ReflexApi
+﻿namespace ReflexAPI
 {
     /// <summary>
     ///     Class that contains the responses (typically errors) to individual API server queries.
