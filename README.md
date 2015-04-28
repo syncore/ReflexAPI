@@ -1,6 +1,6 @@
 # ReflexAPI
 
-ReflexAPI is a lightweight .NET (C#) back end web service that allows users to retrieve current [Reflex] server data from Valve Software's Steam Master Server. It runs as a standalone console application and does not require an ASP.NET setup. It is capable of returning the server information as JSON (default), XML, as well as in other formats.
+ReflexAPI is a lightweight .NET (C#) back end web service that allows users to retrieve current [Reflex] server data from Valve Software's Steam Master Server. It runs as a standalone console application and does use an ASP.NET setup. It is capable of returning the server information as JSON (default), XML, as well as in other formats.
 
 This is the back end service that is currently providing data to my Reflex Server Browser at: http://reflex.syncore.org
 
@@ -26,7 +26,7 @@ ReflexAPI incorporates the following open source technologies:
 - Build in Visual Studio 2012 or higher.
 	- Before attempting to build, enable the NuGet Package Restore for the ReflexApi solution, by right-clicking it and selecting *Enable NuGet Package Restore*.
 - If running on Linux, install [Mono] and its dependencies.
-- If you are proxying requests, I'd recommend installing [nginx] instead of the mono Apache module.
+- If you are proxying requests, I'd recommend installing [nginx].
 - By default, the API service will listen on http://*:29405/
 	- To change this, launch the ReflexApi executable with an argument containing the interface's IP and port, for example: `ReflexApi.exe http://*:80/` to listen on all interfaces on port 80.
 
@@ -59,6 +59,9 @@ ReflexAPI incorporates the following open source technologies:
 		 - *string: countryCode*
 		 	 - Show servers from a specified two letter country code.
 			 - `GET /servers?countryCode=US`
+		 - *string: gameType*
+		 	 - Show servers running the specified game type.
+			 - `GET /servers?gameType=TDM`
 		 - *string: map*
 		 	 - Show servers currently playing the specified map.
 			 - `GET /servers?map=bdm3`
@@ -71,7 +74,7 @@ ReflexAPI incorporates the following open source technologies:
 		 - ***Note*: it is possible to chain filters together:**
 		 	 - For example, to retrieve all Microsoft Windows servers running Reflex Build 0.30.4 in the United States on map cpm3 with active players:
 			 - `GET /servers?os=windows&version=0.30.4&countryCode=US&map=cpm3&hasPlayers=true`
- 
+
 - **Querying servers**
 	 - `GET /queryserver?host=address1,address2,address3...address10&port=port1,port2,port3...port10`
 		 - This is used to retrieve the most up-to-date, real-time information for up to ten (10) Reflex servers at a time.

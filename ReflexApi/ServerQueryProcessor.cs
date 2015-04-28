@@ -177,6 +177,9 @@ namespace ReflexAPI
                 // Query the SQLite DB for the country info based on the IP
                 var countryInfo = _countryRetriever.GetCountryInfo(serverAddress);
 
+                // Recent 0.33+ builds have added data to the keywords
+                var gametype = serverInfo.ExtraData.Keywords.Split('|');
+                
                 var sd = new ServerData
                 {
                     serverName = serverInfo.Name,
@@ -192,6 +195,7 @@ namespace ReflexAPI
                         (serverInfo.ServerType == ServerType.Dedicated ? "dedicated" : "listen"),
                     requiresPassword = serverInfo.RequiresPassword,
                     hasVacProtection = serverInfo.IsVacProtected,
+                    keywords = serverInfo.ExtraData.Keywords,
                     version = serverInfo.Version,
                     bots = serverInfo.Bots,
                     os =
@@ -204,8 +208,7 @@ namespace ReflexAPI
                     gametype =
                         ((string.IsNullOrEmpty(serverInfo.ExtraData.Keywords))
                             ? ""
-                            : serverInfo.ExtraData.Keywords),
-                    //keywords = serverInfo.ExtraData.Keywords,
+                            : gametype[0].ToUpper()),
                     steamIdGame = serverInfo.ExtraData.GameSteamId,
                     steamPort = serverAddress.Port,
                     players = players
