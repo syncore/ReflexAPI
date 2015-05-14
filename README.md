@@ -18,9 +18,6 @@ ReflexAPI incorporates the following open source technologies:
   - [QuartzNET] for job scheduling
   - [Log4Net] for logging
 
-### Version
-1.0.0
-
 ### Installation
 
 - Build in Visual Studio 2012 or higher.
