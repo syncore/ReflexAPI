@@ -19,6 +19,11 @@ bld/
 [Bb]in/
 [Oo]bj/
 
+# MSBuild Community Tasks
+**/.build/*
+.build/
+Build.proj
+
 # Roslyn cache directories
 *.ide/
 

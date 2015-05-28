@@ -1,8 +1,8 @@
 ﻿namespace ReflexAPI.Enum
 {
     /// <summary>
-    /// Enum that represents the different types of Reflex server filters
-    /// that a user can specify via the /servers URL API endpoint.
+    /// Enum that represents the different types of Reflex server filters that a user can specify
+    /// via the /servers URL API endpoint.
     /// </summary>
     public enum FilterTypes
     {

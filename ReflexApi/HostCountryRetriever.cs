@@ -1,24 +1,24 @@
-﻿using System;
-using System.Data.SQLite;
-using System.IO;
-using System.Net;
-using System.Reflection;
-using ReflexAPI.SteamData;
-using ReflexAPI.Util;
-
-namespace ReflexAPI
+﻿namespace ReflexAPI
 {
+    using System;
+    using System.Data.SQLite;
+    using System.IO;
+    using System.Net;
+    using System.Reflection;
+    using Mono.Data.Sqlite;
+    using ReflexAPI.SteamData;
+    using ReflexAPI.Util;
+
     /// <summary>
     /// Class for retrieving country information from SQLite DB.
     /// </summary>
     public class HostCountryRetriever
     {
         private static readonly Type LogClassType = MethodBase.GetCurrentMethod().DeclaringType;
-
-        private readonly Mono.Data.Sqlite.SqliteConnection _monoSqlConn;
+        private readonly SqliteConnection _monoSqlConn;
 
         private readonly string _sqlConString = "Data Source=" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-           "countries.sqlite");
+            "countries.sqlite");
 
         private readonly SQLiteConnection _winSqlConn;
 
@@ -30,7 +30,7 @@ namespace ReflexAPI
             // See which type of connection we need to open, based on runtime environment (linux/windows)
             if (IsRunningOnMono())
             {
-                _monoSqlConn = new Mono.Data.Sqlite.SqliteConnection(_sqlConString);
+                _monoSqlConn = new SqliteConnection(_sqlConString);
                 _monoSqlConn.Open();
             }
             else
@@ -48,7 +48,7 @@ namespace ReflexAPI
         public CountryData GetCountryInfo(IPEndPoint ipe)
         {
             IPAddress ipa;
-            string ipStr = ipe.Address.ToString();
+            var ipStr = ipe.Address.ToString();
             try
             {
                 ipa = IPAddress.Parse(ipStr);
@@ -63,17 +63,18 @@ namespace ReflexAPI
             var bytes = ipa.GetAddressBytes();
 
             // IP address needs to be a signed 64-bit int, as that is how database stores it
-            var convertedIp = (long)(16777216 * (long)bytes[0] + 65536 * (long)bytes[1] + 256 * (long)bytes[2] + (long)bytes[3]);
+            var convertedIp = 16777216 * (long)bytes[0] + 65536 * (long)bytes[1] + 256 * (long)bytes[2] + bytes[3];
 
-            return IsRunningOnMono() ? QueryDb(new Mono.Data.Sqlite.SqliteCommand(_monoSqlConn), convertedIp, ipStr) :
+            return IsRunningOnMono() ? QueryDb(new SqliteCommand(_monoSqlConn), convertedIp, ipStr) :
                 QueryDb(new SQLiteCommand(_winSqlConn), convertedIp, ipStr);
         }
 
         /// <summary>
         /// Determines whether ReflexAPI is running on Mono.
         /// </summary>
-        /// <returns><c>true</c> if ReflexAPI is running on Mono,
-        ///  otherwise <c>false</c> (running on Windows)</returns>
+        /// <returns>
+        /// <c>true</c> if ReflexAPI is running on Mono, otherwise <c>false</c> (running on Windows)
+        /// </returns>
         private static bool IsRunningOnMono()
         {
             return Type.GetType("Mono.Runtime") != null;
@@ -85,13 +86,9 @@ namespace ReflexAPI
         /// <param name="cmd">The SqliteCommand.</param>
         /// <param name="ip">The ip.</param>
         /// <param name="ipStr">The ip as a string.</param>
-        /// <returns>
-        /// The server's country information as a <see cref="CountryData" /> object.
-        /// </returns>
-        /// <remarks>
-        /// This method is for Mono (linux) compatibility.
-        /// </remarks>
-        private CountryData QueryDb(Mono.Data.Sqlite.SqliteCommand cmd, long ip, string ipStr)
+        /// <returns>The server's country information as a <see cref="CountryData"/> object.</returns>
+        /// <remarks>This method is for Mono (linux) compatibility.</remarks>
+        private CountryData QueryDb(SqliteCommand cmd, long ip, string ipStr)
         {
             CountryData cd = null;
             try
@@ -102,7 +99,7 @@ namespace ReflexAPI
                     cmd.CommandText =
                         "SELECT name, country FROM countries WHERE begin_num <= @ip AND end_num >= @ip LIMIT 1";
 
-                    using (Mono.Data.Sqlite.SqliteDataReader reader = cmd.ExecuteReader())
+                    using (var reader = cmd.ExecuteReader())
                     {
                         if (!reader.HasRows)
                         {
@@ -113,10 +110,10 @@ namespace ReflexAPI
                         while (reader.Read())
                         {
                             cd = new CountryData
-                            {
-                                countryName = (string)reader["name"],
-                                countryCode = (string)reader["country"],
-                            };
+                                 {
+                                     countryName = (string)reader["name"],
+                                     countryCode = (string)reader["country"]
+                                 };
                         }
                     }
                 }
@@ -136,9 +133,7 @@ namespace ReflexAPI
         /// <param name="cmd">The SQLiteCommand.</param>
         /// <param name="ip">The ip.</param>
         /// <param name="ipStr">The ip as a string.</param>
-        /// <returns>
-        /// The server's country information as a <see cref="CountryData" /> object.
-        /// </returns>
+        /// <returns>The server's country information as a <see cref="CountryData"/> object.</returns>
         private CountryData QueryDb(SQLiteCommand cmd, long ip, string ipStr)
         {
             CountryData cd = null;
@@ -150,7 +145,7 @@ namespace ReflexAPI
                     cmd.CommandText =
                         "SELECT name, country FROM countries WHERE begin_num <= @ip AND end_num >= @ip LIMIT 1";
 
-                    using (SQLiteDataReader reader = cmd.ExecuteReader())
+                    using (var reader = cmd.ExecuteReader())
                     {
                         if (!reader.HasRows)
                         {
@@ -161,10 +156,10 @@ namespace ReflexAPI
                         while (reader.Read())
                         {
                             cd = new CountryData
-                            {
-                                countryName = (string)reader["name"],
-                                countryCode = (string)reader["country"],
-                            };
+                                 {
+                                     countryName = (string)reader["name"],
+                                     countryCode = (string)reader["country"]
+                                 };
                         }
                     }
                 }
@@ -181,14 +176,17 @@ namespace ReflexAPI
         /// <summary>
         /// Sets the country data to unknown when it cannot be found for whatever reason.
         /// </summary>
-        /// <returns>The server's country information as a <see cref="CountryData"/> object with default 'unknown' values.</returns>
+        /// <returns>
+        /// The server's country information as a <see cref="CountryData"/> object with default
+        /// 'unknown' values.
+        /// </returns>
         private CountryData SetUnknownCountryData()
         {
             return new CountryData
-            {
-                countryName = "Unknown",
-                countryCode = "Unknown",
-            };
+                   {
+                       countryName = "Unknown",
+                       countryCode = "Unknown"
+                   };
         }
     }
 }

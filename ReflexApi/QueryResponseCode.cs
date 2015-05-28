@@ -1,7 +1,7 @@
 ﻿namespace ReflexAPI
 {
     /// <summary>
-    ///     Class that contains the responses (typically errors) to individual API server queries.
+    /// Class that contains the responses (typically errors) to individual API server queries.
     /// </summary>
     public sealed class QueryResponseCode
     {
@@ -38,7 +38,7 @@
             "Successful query.");
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="QueryResponseCode" /> class.
+        /// Initializes a new instance of the <see cref="QueryResponseCode"/> class.
         /// </summary>
         /// <param name="userMessage">The (error) message to display to the user via the API.</param>
         /// <param name="loggerMessage">The (error) message to log to the internal logger.</param>
@@ -49,19 +49,15 @@
         }
 
         /// <summary>
-        ///     Gets the (error) message to log to the internal logger.
+        /// Gets the (error) message to log to the internal logger.
         /// </summary>
-        /// <value>
-        ///     The (error) message to log to the internal logger.
-        /// </value>
+        /// <value>The (error) message to log to the internal logger.</value>
         public string LoggerMessage { get; private set; }
 
         /// <summary>
-        ///     Gets the (error) message to display to the user via the API.
+        /// Gets the (error) message to display to the user via the API.
         /// </summary>
-        /// <value>
-        ///     The (error) message to display to the user via the API
-        /// </value>
+        /// <value>The (error) message to display to the user via the API</value>
         public string UserMessage { get; private set; }
     }
 }

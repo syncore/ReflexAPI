@@ -1,16 +1,17 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using Funq;
-using log4net.Config;
-using Quartz;
-using Quartz.Impl;
-using ReflexAPI.Util;
-using ServiceStack;
-// ReSharper disable InconsistentNaming
+﻿// ReSharper disable InconsistentNaming
 
 namespace ReflexAPI
 {
+    using System;
+    using System.IO;
+    using System.Reflection;
+    using Funq;
+    using log4net.Config;
+    using Quartz;
+    using Quartz.Impl;
+    using ReflexAPI.Util;
+    using ServiceStack;
+
     /// <summary>
     /// ServiceStack-related API class.
     /// </summary>
@@ -31,31 +32,6 @@ namespace ReflexAPI
                 SecsWaitBeforeInitialRetrieval), MethodBase.GetCurrentMethod().DeclaringType);
 
             DoStartupActivities();
-        }
-
-        /// <summary>
-        /// Does the startup activities (scheduling jobs, configuration logging, etc.)
-        /// </summary>
-        private void DoStartupActivities()
-        {
-            // Logging
-            XmlConfigurator.ConfigureAndWatch(
-                new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "reflexapilog.config")));
-
-            // Define a scheduled job, tied to the ServerQueryJob class.
-            IJobDetail srvListReqJob = JobBuilder.Create<ServerQueryJob>().WithIdentity("job1", "group1").Build();
-
-            // Trigger the job (server list retrieval) to run 10 seconds from now, then every 90 seconds after that, forever
-            ITrigger srvListReqTrigger = TriggerBuilder.Create()
-                .WithIdentity("trigger1", "group1")
-                .StartAt(DateBuilder.FutureDate(SecsWaitBeforeInitialRetrieval, IntervalUnit.Second))
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(DoRetrievalEverySecs).
-                    RepeatForever())
-                    .Build();
-
-            // Schedule the job & start
-            _scheduler.ScheduleJob(srvListReqJob, srvListReqTrigger);
-            _scheduler.Start();
         }
 
         /// <summary>
@@ -82,7 +58,8 @@ namespace ReflexAPI
                 DefaultContentType = MimeTypes.Json,
                 AllowJsonpRequests = true,
 
-                // In production, redirect from /api/ to the document root, which will be the standard server browser page.
+                // In production, redirect from /api/ to the document root, which will be the
+                // standard server browser page.
                 DefaultRedirectPath = "../"
             });
 
@@ -107,6 +84,32 @@ namespace ReflexAPI
                 res.Write(@"{""error"":""Invalid request.""}");
                 res.EndRequest(true);
             });
+        }
+
+        /// <summary>
+        /// Does the startup activities (scheduling jobs, configuration logging, etc.)
+        /// </summary>
+        private void DoStartupActivities()
+        {
+            // Logging
+            XmlConfigurator.ConfigureAndWatch(
+                new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "reflexapilog.config")));
+
+            // Define a scheduled job, tied to the ServerQueryJob class.
+            var srvListReqJob = JobBuilder.Create<ServerQueryJob>().WithIdentity("job1", "group1").Build();
+
+            // Trigger the job (server list retrieval) to run 10 seconds from now, then every 90
+            // seconds after that, forever
+            var srvListReqTrigger = TriggerBuilder.Create()
+                .WithIdentity("trigger1", "group1")
+                .StartAt(DateBuilder.FutureDate(SecsWaitBeforeInitialRetrieval, IntervalUnit.Second))
+                .WithSimpleSchedule(x => x.WithIntervalInSeconds(DoRetrievalEverySecs).
+                    RepeatForever())
+                    .Build();
+
+            // Schedule the job & start
+            _scheduler.ScheduleJob(srvListReqJob, srvListReqTrigger);
+            _scheduler.Start();
         }
     }
 }

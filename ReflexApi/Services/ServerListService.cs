@@ -1,22 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ReflexAPI.Enum;
-using ReflexAPI.Models;
-using ReflexAPI.SteamData;
-using ServiceStack;
-
-namespace ReflexAPI.Services
+﻿namespace ReflexAPI.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using ReflexAPI.Enum;
+    using ReflexAPI.Models;
+    using ReflexAPI.SteamData;
+    using ServiceStack;
+
     /// <summary>
-    ///     Class responsible for handling a user's server list request.
-    ///     This class will generally receive a user's server list request, determine if the request
-    ///     has any filters, and return the appropriate response to the user.
+    /// Class responsible for handling a user's server list request. This class will generally
+    /// receive a user's server list request, determine if the request has any filters, and return
+    /// the appropriate response to the user.
     /// </summary>
     public class ServerListService : Service
     {
         /// <summary>
-        ///     Receives and processes the user's API request if possible.
+        /// Receives and processes the user's API request if possible.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>The appropriate response based on the type of request received.</returns>
@@ -29,14 +29,14 @@ namespace ReflexAPI.Services
         }
 
         /// <summary>
-        ///     Generates the filtered server list.
+        /// Generates the filtered server list.
         /// </summary>
         /// <param name="filterTypes">The filter types applicable for the given request.</param>
         /// <param name="previousFilter">The previous (initial) unfiltered list.</param>
         /// <param name="request">The request.</param>
         /// <returns>The list of servers that meet the specified criteria.</returns>
         private List<ServerData> GenerateFilteredList(IEnumerable<FilterTypes> filterTypes,
-            List<ServerData> previousFilter, ServerListRequest request)
+                                                      List<ServerData> previousFilter, ServerListRequest request)
         {
             //TODO: REFACTOR
             var filteredServers = new List<ServerData>();
@@ -68,7 +68,7 @@ namespace ReflexAPI.Services
                     filteredServers =
                         (previousFilter.Where(
                             s => s.map.Equals(request.Map, StringComparison.InvariantCultureIgnoreCase))
-                            .ToList());
+                                       .ToList());
                     previousFilter = filteredServers;
                     continue;
                 }
@@ -90,7 +90,7 @@ namespace ReflexAPI.Services
                     filteredServers =
                         (previousFilter.Where(
                             s => s.os.Equals(request.Os, StringComparison.InvariantCultureIgnoreCase))
-                            .ToList());
+                                       .ToList());
                     previousFilter = filteredServers;
                     continue;
                 }
@@ -137,62 +137,60 @@ namespace ReflexAPI.Services
         }
 
         /// <summary>
-        ///     Handles the request if it contains any user specified filters.
+        /// Handles the request if it contains any user specified filters.
         /// </summary>
         /// <param name="filters">The filters.</param>
         /// <param name="request">The request.</param>
-        /// <returns>
-        ///     A list of servers that meet the requirements of the request.
-        /// </returns>
+        /// <returns>A list of servers that meet the requirements of the request.</returns>
         private ServerListResponse HandleFilteredRequest(List<FilterTypes> filters, ServerListRequest request)
         {
             if (ServerList.AllServers == null)
             {
-                // Return default response with generic message & empty server list instead of ServiceStack's
-                // serialized JSON information that contains the .NET exception info.
+                // Return default response with generic message & empty server list instead of
+                // ServiceStack's serialized JSON information that contains the .NET exception info.
                 return new ServerListResponse
-                {
-                    msg = "Init in progress.",
-                    count = 0,
-                    servers = new List<ServerData>()
-                };
+                       {
+                           msg = "Init in progress.",
+                           count = 0,
+                           servers = new List<ServerData>()
+                       };
             }
 
             var unfiltered = ServerList.AllServers;
             var filteredServers = GenerateFilteredList(filters, unfiltered, request);
 
             return new ServerListResponse
-            {
-                count = filteredServers.Count,
-                servers = filteredServers
-            };
+                   {
+                       count = filteredServers.Count,
+                       servers = filteredServers
+                   };
         }
 
         /// <summary>
-        ///     Handles the request if it does not contain any user specified filters.
+        /// Handles the request if it does not contain any user specified filters.
         /// </summary>
         /// <returns></returns>
         private ServerListResponse HandleUnfilteredRequest()
         {
             if (ServerList.AllServers == null)
             {
-                // Return default response with generic message & empty server list instead of ServiceStack's
-                // serialized JSON information that contains the .NET exception info.
+                // Return default response with generic message & empty server list instead of
+                // ServiceStack's serialized JSON information that contains the .NET exception info.
                 return new ServerListResponse
-                {
-                    msg = "Init in progress.",
-                    count = 0,
-                    servers = new List<ServerData>()
-                };
+                       {
+                           msg = "Init in progress.",
+                           count = 0,
+                           servers = new List<ServerData>()
+                       };
             }
 
             return new ServerListResponse
-            {
-                count = ServerList.AllServers.Count,
-                servers = ServerList.AllServers,
-                failedCount = ServerList.FailedServers.Count,
-                failedServers = ServerList.FailedServers
-            };
+                   {
+                       count = ServerList.AllServers.Count,
+                       servers = ServerList.AllServers,
+                       failedCount = ServerList.FailedServers.Count,
+                       failedServers = ServerList.FailedServers
+                   };
         }
     }
 }

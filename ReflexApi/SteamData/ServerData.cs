@@ -1,226 +1,174 @@
-﻿using System.Collections.Generic;
-using System.Text;
-
-// ReSharper disable InconsistentNaming
+﻿ // ReSharper disable InconsistentNaming
 
 namespace ReflexAPI.SteamData
 {
+    using System.Collections.Generic;
+    using System.Text;
+
     /// <summary>
-    ///     Model for Steam data that represents a Reflex server returned from Valve's master server.
+    /// Model for Steam data that represents a Reflex server returned from Valve's master server.
     /// </summary>
     /// <remarks>
-    ///     Ignore ReSharper warnings about capitalization since JSON responses
-    ///     are not typically capitalized in APIs.
+    /// Ignore ReSharper warnings about capitalization since JSON responses are not typically
+    /// capitalized in APIs.
     /// </remarks>
     public class ServerData
     {
         /// <summary>
-        ///     Gets or sets the number of bots on the server.
+        /// Gets or sets the number of bots on the server.
         /// </summary>
-        /// <value>
-        ///     The number of bots on the server.
-        /// </value>
+        /// <value>The number of bots on the server.</value>
         public int? bots { get; set; }
 
         /// <summary>
-        ///     Gets or sets the two letter country code for the server.
+        /// Gets or sets the two letter country code for the server.
         /// </summary>
-        /// <value>
-        ///     The server's two letter country code.
-        /// </value>
+        /// <value>The server's two letter country code.</value>
         public string countryCode { get; set; }
 
         /// <summary>
-        ///     Gets or sets name of the country in which the server is hosted.
+        /// Gets or sets name of the country in which the server is hosted.
         /// </summary>
-        /// <value>
-        ///     The name of the country in which the server is hosted.
-        /// </value>
+        /// <value>The name of the country in which the server is hosted.</value>
         public string countryName { get; set; }
 
         /// <summary>
-        ///     Gets or sets the game the server is running.
+        /// Gets or sets the game the server is running.
         /// </summary>
-        /// <value>
-        ///     The game the server is running.
-        /// </value>
+        /// <value>The game the server is running.</value>
         public string game { get; set; }
 
         /// <summary>
-        ///     Gets or sets the gametype the server is running.
+        /// Gets or sets the gametype the server is running.
         /// </summary>
-        /// <value>
-        ///     The gametype.
-        /// </value>
-        /// <remarks>
-        ///     This is a custom value derived from the keywords.
-        /// </remarks>
+        /// <value>The gametype.</value>
+        /// <remarks>This is a custom value derived from the keywords.</remarks>
         public string gametype { get; set; }
 
         /// <summary>
-        ///     Gets or sets whether the server has vac protection enabled.
+        /// Gets or sets whether the server has vac protection enabled.
         /// </summary>
-        /// <value>
-        ///     Whether the server has vac protection enabled.
-        /// </value>
+        /// <value>Whether the server has vac protection enabled.</value>
         public bool? hasVacProtection { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's identifier.
+        /// Gets or sets the server's identifier.
         /// </summary>
-        /// <value>
-        ///     The server's identifier.
-        /// </value>
+        /// <value>The server's identifier.</value>
         public int? id { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's ip.
+        /// Gets or sets the server's ip.
         /// </summary>
-        /// <value>
-        ///     The server's ip.
-        /// </value>
+        /// <value>The server's ip.</value>
         public string ip { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's keywords.
+        /// Gets or sets the server's keywords.
         /// </summary>
-        /// <value>
-        ///     The server's keywords.
-        /// </value>
+        /// <value>The server's keywords.</value>
         public string keywords { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's map.
+        /// Gets or sets the server's map.
         /// </summary>
-        /// <value>
-        ///     The server's map.
-        /// </value>
+        /// <value>The server's map.</value>
         public string map { get; set; }
 
         /// <summary>
-        ///     Gets or sets the maximum players on the server.
+        /// Gets or sets the maximum players on the server.
         /// </summary>
-        /// <value>
-        ///     The maximum players on the server.
-        /// </value>
+        /// <value>The maximum players on the server.</value>
         public int? maxPlayers { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's operating system.
+        /// Gets or sets the server's operating system.
         /// </summary>
-        /// <value>
-        ///     The server's operating system.
-        /// </value>
+        /// <value>The server's operating system.</value>
         public string os { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's player count.
+        /// Gets or sets the server's player count.
         /// </summary>
-        /// <value>
-        ///     The server's player count.
-        /// </value>
+        /// <value>The server's player count.</value>
         public int? playerCount { get; set; }
 
         /// <summary>
-        ///     Gets or sets the players on the server.
+        /// Gets or sets the players on the server.
         /// </summary>
-        /// <value>
-        ///     The players on the server.
-        /// </value>
+        /// <value>The players on the server.</value>
         public List<PlayerData> players { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's (game, not steam) port.
+        /// Gets or sets the server's (game, not steam) port.
         /// </summary>
-        /// <value>
-        ///     The server's (game, not steam) port.
-        /// </value>
+        /// <value>The server's (game, not steam) port.</value>
         public int? port { get; set; }
 
         //public string SourceTvName { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's protocol.
+        /// Gets or sets the server's protocol.
         /// </summary>
-        /// <value>
-        ///     The server's protocol.
-        /// </value>
+        /// <value>The server's protocol.</value>
         public int? protocol { get; set; }
 
         //public int? sourceTvPort { get; set; }
 
         /// <summary>
-        ///     Gets or sets whether the requires password.
+        /// Gets or sets whether the requires password.
         /// </summary>
-        /// <value>
-        ///     Whether the server requires a password.
-        /// </value>
+        /// <value>Whether the server requires a password.</value>
         public bool? requiresPassword { get; set; }
 
         /// <summary>
-        ///     Gets or sets the name of the server.
+        /// Gets or sets the name of the server.
         /// </summary>
-        /// <value>
-        ///     The name of the server.
-        /// </value>
+        /// <value>The name of the server.</value>
         public string serverName { get; set; }
 
         /// <summary>
-        ///     Gets or sets the type of server.
+        /// Gets or sets the type of server.
         /// </summary>
-        /// <value>
-        ///     The type of server.
-        /// </value>
+        /// <value>The type of server.</value>
         public string serverType { get; set; }
 
         //public string folder { get; set; }
 
         /// <summary>
-        ///     Gets or sets the game's steam identifier.
+        /// Gets or sets the game's steam identifier.
         /// </summary>
-        /// <value>
-        ///     The game's steam identifier.
-        /// </value>
+        /// <value>The game's steam identifier.</value>
         public ulong? steamIdGame { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's signed Steam identifier.
+        /// Gets or sets the server's signed Steam identifier.
         /// </summary>
-        /// <value>
-        ///     The server's signed Steam identifier.
-        /// </value>
+        /// <value>The server's signed Steam identifier.</value>
         public long? steamIdServer { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's Steam query port.
+        /// Gets or sets the server's Steam query port.
         /// </summary>
-        /// <value>
-        ///     The server's Steam query port.
-        /// </value>
+        /// <value>The server's Steam query port.</value>
         public int? steamPort { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's unsigned Steam identifier.
+        /// Gets or sets the server's unsigned Steam identifier.
         /// </summary>
-        /// <value>
-        ///     The server's unsigned Steam identifier.
-        /// </value>
+        /// <value>The server's unsigned Steam identifier.</value>
         public ulong? unsignedServerSteamId { get; set; }
 
         /// <summary>
-        ///     Gets or sets the server's version.
+        /// Gets or sets the server's version.
         /// </summary>
-        /// <value>
-        ///     The server's version.
-        /// </value>
+        /// <value>The server's version.</value>
         public string version { get; set; }
 
         /// <summary>
-        ///     Returns a <see cref="System.String" /> that represents this instance.
+        /// Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
-        /// <returns>
-        ///     A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+        /// <returns>A <see cref="System.String"/> that represents this instance.</returns>
         public override string ToString()
         {
             // For testing purposes...

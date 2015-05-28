@@ -2,6 +2,12 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <MSBuildCommunityTasksPath>$(SolutionDir)\.build</MSBuildCommunityTasksPath>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets" />
+  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{5A4798C2-7B7A-4F1F-ABFD-61EAE5AC0E59}</ProjectGuid>
@@ -113,6 +119,9 @@
     <None Include="quartz.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="reflexapi.sh">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="reflexapilog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -135,4 +144,79 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <!--Actions to perform prior to building all builds-->
+  <Target Name="BeforeBuild">
+    <PropertyGroup>
+      <DistributionPackagePath>bin\DistPackage</DistributionPackagePath>
+      <MergedExePath>bin\Release\merged</MergedExePath>
+    </PropertyGroup>
+    <!--Remove the merged exe and distribution directories-->
+    <RemoveDir Directories="$(MergedExePath)" />
+    <RemoveDir Directories="$(DistributionPackagePath)" />
+  </Target>
+  <!--Actions to perform only for release builds-->
+  <Target Name="AfterBuild" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PropertyGroup>
+      <MergedExePath>bin\Release\merged</MergedExePath>
+    </PropertyGroup>
+    <!--Get the version number of the assembly (only interested in the major and minor numbers, not build nor revision numbers)-->
+    <GetAssemblyIdentity AssemblyFiles="$(TargetDir)$(TargetFileName)">
+      <Output TaskParameter="Assemblies" ItemName="AssemblyVersion" />
+    </GetAssemblyIdentity>
+    <PropertyGroup>
+      <Pattern>(\d+)\.(\d+)</Pattern>
+      <In>%(AssemblyVersion.Version)</In>
+      <AppVersion>$([System.Text.RegularExpressions.Regex]::Match($(In), $(Pattern)))</AppVersion>
+    </PropertyGroup>
+    <!--Create the merged exe directory and required SQLite interop directories-->
+    <Message Importance="high" Text="Creating merged executable directory at $(SolutionDir)$(AssemblyName)\$(MergedExePath)" />
+    <MakeDir Directories="$(MergedExePath)\ReflexApi;$(MergedExePath)\ReflexApi\x86;$(MergedExePath)\ReflexAPI\x64" />
+    <PropertyGroup>
+      <ReferenceAssemblies>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5</ReferenceAssemblies>
+    </PropertyGroup>
+    <!--Run ILMerge-->
+    <ItemGroup>
+      <!--For ReflexAPI, the application will not run if Common.Logging and Quartz are merged into main executable,
+    so include all DLL files except these two for merging
+    -->
+      <MergeableDLLFiles Include="$(TargetDir)\*.dll" Exclude="$(TargetDir)\Common.Logging.dll;$(TargetDir)\Quartz.dll;" />
+    </ItemGroup>
+    <!--Copy all the mergeable DLL files to an intermediate directory to bypass the 260 char path restriction-->
+    <Message Importance="high" Text="Copying all mergeable DLLs to intermediate directory" />
+    <Copy SourceFiles="@(MergeableDLLFiles)" DestinationFolder="$(SolutionDir)$(AssemblyName)\$(MergedExePath)\MergeableDLLs" />
+    <Message Importance="high" Text="Running ILMerge with target platform referenced assemblies from $(ReferenceAssemblies)" />
+    <!--Note, ReflexAPI is a console application, so target is exe instead of winexe-->
+    <Exec Command="&quot;$(SolutionDir)packages\ilmerge.2.14.1208\tools\ILMerge.exe&quot; /out:&quot;$(SolutionDir)$(AssemblyName)\$(MergedExePath)\ReflexApi\$(TargetFileName)&quot; &quot;$(TargetDir)$(TargetFileName)&quot; &quot;$(SolutionDir)$(AssemblyName)\$(MergedExePath)\MergeableDLLs\*.dll&quot; /target:exe /targetplatform:v4,&quot;$(ReferenceAssemblies)&quot; /ndebug /wildcards" />
+    <!--Delete the intermediate merged DLL directory so it doesn't get copied to the final archive-->
+    <Message Importance="high" Text="Removing mergeable DLL intermediate directory" />
+    <RemoveDir Directories="$(SolutionDir)$(AssemblyName)\$(MergedExePath)\MergeableDLLs" />
+    <ItemGroup>
+      <!--Common.Logging and Quartz were not included in the merge-->
+      <CommonLoggingDllFile Include="$(TargetDir)Common.Logging.dll" />
+      <QuartzDllFile Include="$(TargetDir)Quartz.dll" />
+      <ReflexApiCountryDb Include="$(TargetDir)countries.sqlite" />
+      <ReflexApiShellScript Include="$(TargetDir)reflexapi.sh" />
+      <ReflexApiConfigFiles Include="$(TargetDir)\*.config" />
+      <SQLitex86InteropFile Include="$(SolutionDir)packages\System.Data.SQLite.Core.1.0.94.0\build\net45\x86\SQLite.Interop.dll" />
+      <SQLitex64InteropFile Include="$(SolutionDir)packages\System.Data.SQLite.Core.1.0.94.0\build\net45\x64\SQLite.Interop.dll" />
+    </ItemGroup>
+    <!--Copy the remaining files (SQLite interop, config files, country database, unmergeable DLLs) to merged for packaging-->
+    <Message Importance="high" Text="Copying remaining ReflexApi files to merged executable directory" />
+    <Copy SourceFiles="@(CommonLoggingDllFile)" DestinationFolder="$(SolutionDir)$(AssemblyName)\$(MergedExePath)\ReflexAPI" />
+    <Copy SourceFiles="@(QuartzDllFile)" DestinationFolder="$(SolutionDir)$(AssemblyName)\$(MergedExePath)\ReflexAPI" />
+    <Copy SourceFiles="@(ReflexApiCountryDb)" DestinationFolder="$(SolutionDir)$(AssemblyName)\$(MergedExePath)\ReflexAPI" />
+    <Copy SourceFiles="@(ReflexApiShellScript)" DestinationFolder="$(SolutionDir)$(AssemblyName)\$(MergedExePath)\ReflexAPI" />
+    <Copy SourceFiles="@(ReflexApiConfigFiles)" DestinationFolder="$(SolutionDir)$(AssemblyName)\$(MergedExePath)\ReflexAPI" />
+    <Copy SourceFiles="@(SQLitex86InteropFile)" DestinationFolder="$(SolutionDir)$(AssemblyName)\$(MergedExePath)\ReflexAPI\x86" />
+    <Copy SourceFiles="@(SQLitex64InteropFile)" DestinationFolder="$(SolutionDir)$(AssemblyName)\$(MergedExePath)\ReflexAPI\x64" />
+    <!--Zip the merged exe directory-->
+    <Message Importance="high" Text="Packaging version $(AppVersion) release as zip file: $(SolutionDir)$(AssemblyName)\$(DistributionPackagePath)\reflexapi-v$(AppVersion).zip" />
+    <ItemGroup>
+      <FilesToZip Include="$(MergedExePath)\**\*.*" />
+    </ItemGroup>
+    <Zip Files="@(FilesToZip)" WorkingDirectory="$(MergedExePath)" ZipFileName="$(DistributionPackagePath)\reflexapi-v$(AppVersion).zip" ZipLevel="9" />
+    <!--Remove merged exe directory-->
+    <Message Importance="high" Text="Removing merged executable directory" />
+    <RemoveDir Directories="$(SolutionDir)$(AssemblyName)\$(MergedExePath)" />
+  </Target>
 </Project>

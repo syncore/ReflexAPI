@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using ReflexAPI.Models;
-using ReflexAPI.Util;
-using ServiceStack;
-
-namespace ReflexAPI.Services
+﻿namespace ReflexAPI.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using System.Reflection;
+    using ReflexAPI.Models;
+    using ReflexAPI.Util;
+    using ServiceStack;
+
     /// <summary>
-    ///     Class responsible for handling a user's server query request.
+    /// Class responsible for handling a user's server query request.
     /// </summary>
     public class ServerQueryService : Service
     {
@@ -18,7 +18,7 @@ namespace ReflexAPI.Services
         private static readonly Type LogClassType = MethodBase.GetCurrentMethod().DeclaringType;
 
         /// <summary>
-        ///     Receives and processes the user's API request, if possible.
+        /// Receives and processes the user's API request, if possible.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>The appropriate response based on the type of request received.</returns>
@@ -32,41 +32,55 @@ namespace ReflexAPI.Services
 
             // Check if user specified the server's hostname.
             if (string.IsNullOrEmpty(request.Host))
+            {
                 return ReturnInvalidResponseDetails(QueryResponseCode.HostNotSpecifiedError);
+            }
 
             // Check if user specified the server's port.
             if (string.IsNullOrEmpty(request.Port))
+            {
                 return ReturnInvalidResponseDetails(QueryResponseCode.PortNotSpecifiedError);
+            }
 
             // Multi-query
             if ((request.Host.Contains(',') && (request.Port.Contains(','))))
+            {
                 return HandleMultiServerQuery(request);
+            }
 
             return HandleSingleServerQuery(request);
         }
 
         /// <summary>
-        ///     Checks the hostname and port validity.
+        /// Checks the hostname and port validity.
         /// </summary>
         /// <param name="hostnames">The hostnames.</param>
         /// <param name="ports">The ports.</param>
-        /// <returns>The <see cref="QueryResponseCode" /> that represents the outcome of the validity check.</returns>
+        /// <returns>
+        /// The <see cref="QueryResponseCode"/> that represents the outcome of the validity check.
+        /// </returns>
         private QueryResponseCode CheckMultipleHostValidity(string[] hostnames, string[] ports)
         {
             if (hostnames.Length != ports.Length)
+            {
                 return QueryResponseCode.HostPortsMismatchError;
+            }
 
             if (hostnames.Length > MaxHostsAllowed)
+            {
                 return QueryResponseCode.HostLimitExceededError;
+            }
 
             if (!HostsPortsValid(hostnames, ports))
+            {
                 return QueryResponseCode.HostPortsInvalidError;
+            }
 
             return QueryResponseCode.Success;
         }
 
         /// <summary>
-        ///     Handles a server query request containing multiple hosts.
+        /// Handles a server query request containing multiple hosts.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>A list of servers that meet the requirements of the request or an error.</returns>
@@ -78,7 +92,9 @@ namespace ReflexAPI.Services
 
             // Final validation
             if (validationResult != QueryResponseCode.Success)
+            {
                 return ReturnInvalidResponseDetails(validationResult);
+            }
 
             var toQuery = new List<IPEndPoint>();
             var unindexedServersToSkip = new List<string>();
@@ -99,7 +115,9 @@ namespace ReflexAPI.Services
                 }
 
                 if (ip.Length == 0)
+                {
                     return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
+                }
 
                 if (!MasterServerListContainsHost(ip[0]))
                 {
@@ -117,25 +135,27 @@ namespace ReflexAPI.Services
             var sqp = new ServerQueryProcessor();
             var queryResults = sqp.QueryServers(toQuery);
             return new ServerQueryResponse
-            {
-                servers = queryResults.servers,
-                count = queryResults.servers.Count,
-                failedServers = queryResults.failedServers,
-                failedCount = queryResults.failedServers.Count,
-                unindexedServers = unindexedServersToSkip,
-                unindexedCount = unindexedServersToSkip.Count
-            };
+                   {
+                       servers = queryResults.servers,
+                       count = queryResults.servers.Count,
+                       failedServers = queryResults.failedServers,
+                       failedCount = queryResults.failedServers.Count,
+                       unindexedServers = unindexedServersToSkip,
+                       unindexedCount = unindexedServersToSkip.Count
+                   };
         }
 
         /// <summary>
-        ///     Handles a single server query.
+        /// Handles a single server query.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>The response containing the server information or an error.</returns>
         private ServerQueryResponse HandleSingleServerQuery(ServerQueryRequest request)
         {
             if (!HostsPortsValid(request.Host, request.Port))
+            {
                 return ReturnInvalidResponseDetails(QueryResponseCode.HostPortsInvalidError);
+            }
 
             IPAddress[] ip;
             try
@@ -150,11 +170,15 @@ namespace ReflexAPI.Services
                 return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
             }
             if (ip.Length == 0)
+            {
                 return ReturnInvalidResponseDetails(QueryResponseCode.ResolutionError);
+            }
 
             if (!MasterServerListContainsHost(ip[0]))
+            {
                 // In the case of a single server query, abort entire operation if unindexed.
                 return ReturnInvalidResponseDetails(QueryResponseCode.HostNotIndexedError);
+            }
 
             int port;
             // Already validated
@@ -163,20 +187,22 @@ namespace ReflexAPI.Services
             var queryResults = sqp.QueryServers(new IPEndPoint(ip[0], port));
 
             return new ServerQueryResponse
-            {
-                count = queryResults.servers.Count,
-                servers = queryResults.servers,
-                failedCount = queryResults.failedServers.Count,
-                failedServers = queryResults.failedServers
-            };
+                   {
+                       count = queryResults.servers.Count,
+                       servers = queryResults.servers,
+                       failedCount = queryResults.failedServers.Count,
+                       failedServers = queryResults.failedServers
+                   };
         }
 
         /// <summary>
-        ///     Checks whether the given hostnames and ports are valid.
+        /// Checks whether the given hostnames and ports are valid.
         /// </summary>
         /// <param name="hostnames">The hostnames to check.</param>
         /// <param name="ports">The ports to check.</param>
-        /// <returns><c>true</c> if all of the hosts and ports are valid, otherwise <c>false</c>if any are invalid.</returns>
+        /// <returns>
+        /// <c>true</c> if all of the hosts and ports are valid, otherwise <c>false</c> if any are invalid.
+        /// </returns>
         private bool HostsPortsValid(string[] hostnames, string[] ports)
         {
             var portsValid = false;
@@ -213,11 +239,13 @@ namespace ReflexAPI.Services
         }
 
         /// <summary>
-        ///     Checks whether the given hostname and port is valid.
+        /// Checks whether the given hostname and port is valid.
         /// </summary>
         /// <param name="hostname">The hostname to check.</param>
         /// <param name="port">The port to check.</param>
-        /// <returns><c>true</c> if both the host and port is valid, otherwise <c>false</c>if either are invalid.</returns>
+        /// <returns>
+        /// <c>true</c> if both the host and port is valid, otherwise <c>false</c> if either are invalid.
+        /// </returns>
         private bool HostsPortsValid(string hostname, string port)
         {
             bool portValid;
@@ -247,22 +275,23 @@ namespace ReflexAPI.Services
         }
 
         /// <summary>
-        ///     Checks whether the master server list contains the specified ip.
+        /// Checks whether the master server list contains the specified ip.
         /// </summary>
         /// <param name="ip">The ip.</param>
-        /// <returns><c>true</c> if the master server list contains the specified ip, otherwise <c>false</c>.</returns>
+        /// <returns>
+        /// <c>true</c> if the master server list contains the specified ip, otherwise <c>false</c>.
+        /// </returns>
         private bool MasterServerListContainsHost(IPAddress ip)
         {
             return ServerList.AllServers.Any(s => s.ip.Equals(ip.ToString()));
         }
 
         /// <summary>
-        ///     Returns the invalid response details and logs the error for internal purposes.
+        /// Returns the invalid response details and logs the error for internal purposes.
         /// </summary>
         /// <param name="qrc">The query response code.</param>
         /// <returns>
-        ///     A <see cref="ServerQueryResponse" /> to the user that includes
-        ///     an error message.
+        /// A <see cref="ServerQueryResponse"/> to the user that includes an error message.
         /// </returns>
         private ServerQueryResponse ReturnInvalidResponseDetails(QueryResponseCode qrc)
         {
