@@ -23,7 +23,7 @@ bld/
 **/.build/*
 .build/
 Build.proj
-
+.settings/
 # Roslyn cache directories
 *.ide/
 
