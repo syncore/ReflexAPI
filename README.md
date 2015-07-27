@@ -53,6 +53,9 @@ ReflexAPI incorporates the following open source technologies:
 		 	 - **true**: Show servers that are not full.
 			 - **false**: Show both full and non-full servers.
 			 - `GET /servers?isNotFull=true`
+		 - *string: continent*
+		 	 - Show servers from a specified continent (North+America, South+America, Europe, Oceania, Africa).
+			 - `GET /servers?continent=South+America`
 		 - *string: countryCode*
 		 	 - Show servers from a specified two letter country code.
 			 - `GET /servers?countryCode=US`
