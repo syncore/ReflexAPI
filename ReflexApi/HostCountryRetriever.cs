@@ -97,7 +97,7 @@
                 {
                     cmd.Parameters.AddWithValue("@ip", ip);
                     cmd.CommandText =
-                        "SELECT name, country FROM countries WHERE begin_num <= @ip AND end_num >= @ip LIMIT 1";
+                        "SELECT name, country, continent FROM countries WHERE begin_num <= @ip AND end_num >= @ip LIMIT 1";
 
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -112,7 +112,8 @@
                             cd = new CountryData
                                  {
                                      countryName = (string)reader["name"],
-                                     countryCode = (string)reader["country"]
+                                     countryCode = (string)reader["country"],
+                                     continent = (string)reader["continent"]
                                  };
                         }
                     }
@@ -143,7 +144,7 @@
                 {
                     cmd.Parameters.AddWithValue("@ip", ip);
                     cmd.CommandText =
-                        "SELECT name, country FROM countries WHERE begin_num <= @ip AND end_num >= @ip LIMIT 1";
+                        "SELECT name, country, continent FROM countries WHERE begin_num <= @ip AND end_num >= @ip LIMIT 1";
 
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -158,7 +159,8 @@
                             cd = new CountryData
                                  {
                                      countryName = (string)reader["name"],
-                                     countryCode = (string)reader["country"]
+                                     countryCode = (string)reader["country"],
+                                     continent = (string)reader["continent"]
                                  };
                         }
                     }
@@ -185,7 +187,8 @@
             return new CountryData
                    {
                        countryName = "Unknown",
-                       countryCode = "Unknown"
+                       countryCode = "Unknown",
+                       continent = "Unknown"
                    };
         }
     }

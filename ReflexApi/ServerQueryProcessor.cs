@@ -187,6 +187,7 @@
                              ip = serverAddress.Address.ToString(),
                              countryName = countryInfo.countryName,
                              countryCode = countryInfo.countryCode,
+                             continent = countryInfo.continent,
                              protocol = serverInfo.Protocol,
                              map = serverInfo.Map,
                              game = serverInfo.Game,

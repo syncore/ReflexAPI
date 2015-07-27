@@ -12,6 +12,14 @@ namespace ReflexAPI.SteamData
     public class CountryData
     {
         /// <summary>
+        /// Gets or sets the continent.
+        /// </summary>
+        /// <value>
+        /// The continent.
+        /// </value>
+        public string continent { get; set; }
+        
+        /// <summary>
         /// Gets or sets the name of the country.
         /// </summary>
         /// <value>The name of the country.</value>

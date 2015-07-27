@@ -43,6 +43,16 @@
 
             foreach (var filter in filterTypes)
             {
+                if (filter == FilterTypes.ContinentFilter)
+                {
+                    filteredServers =
+                        (previousFilter.Where(
+                            s =>
+                                s.continent.Equals(request.Continent,
+                                    StringComparison.InvariantCultureIgnoreCase)).ToList());
+                    previousFilter = filteredServers;
+                    continue;
+                }
                 if (filter == FilterTypes.CountryCodeFilter)
                 {
                     filteredServers =

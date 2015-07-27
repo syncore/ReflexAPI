@@ -20,10 +20,10 @@ bld/
 [Oo]bj/
 
 # MSBuild Community Tasks
-**/.build/*
-.build/
-Build.proj
-.settings/
+#**/.build/*
+#.build/
+#Build.proj
+#.settings/
 # Roslyn cache directories
 *.ide/
 

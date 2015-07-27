@@ -21,6 +21,14 @@ namespace ReflexAPI.SteamData
         public int? bots { get; set; }
 
         /// <summary>
+        /// Gets or sets the server's continent.
+        /// </summary>
+        /// <value>
+        /// The server's continent.
+        /// </value>
+        public string continent { get; set; }
+        
+        /// <summary>
         /// Gets or sets the two letter country code for the server.
         /// </summary>
         /// <value>The server's two letter country code.</value>

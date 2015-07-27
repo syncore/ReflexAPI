@@ -8,6 +8,7 @@
     {
         None,
         ProtocolFilter,
+        ContinentFilter,
         CountryCodeFilter,
         MapFilter,
         OsFilter,

@@ -17,6 +17,14 @@
         // Filters (case insensitive): http://the.webserver.com/servers?filter1=type1&filter2=type2&filter3=type3...filterN=typeN
 
         /// <summary>
+        /// Gets or sets the continent filter.
+        /// </summary>
+        /// <value>
+        /// The continent filter.
+        /// </value>
+        public string Continent { get; set; }
+        
+        /// <summary>
         /// Gets or sets the country code filter.
         /// </summary>
         /// <value>The country code filter.</value>
@@ -87,6 +95,10 @@
             if (Protocol != null)
             {
                 filters.Add(FilterTypes.ProtocolFilter);
+            }
+            if (!string.IsNullOrEmpty(Continent))
+            {
+                filters.Add(FilterTypes.ContinentFilter);
             }
             if (!string.IsNullOrEmpty(CountryCode))
             {
