@@ -39,7 +39,7 @@ namespace ReflexAPI.SteamData
         /// </summary>
         /// <value>The name of the country in which the server is hosted.</value>
         public string countryName { get; set; }
-
+        
         /// <summary>
         /// Gets or sets the game the server is running.
         /// </summary>
@@ -52,6 +52,14 @@ namespace ReflexAPI.SteamData
         /// <value>The gametype.</value>
         /// <remarks>This is a custom value derived from the keywords.</remarks>
         public string gametype { get; set; }
+
+        /// <summary>
+        /// Gets or sets the full name of the gametype.
+        /// </summary>
+        /// <value>
+        /// The full name of the gametype.
+        /// </value>
+        public string gametypeFullName { get; set; }
 
         /// <summary>
         /// Gets or sets whether the server has vac protection enabled.

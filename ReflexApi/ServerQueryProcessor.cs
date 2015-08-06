@@ -1,19 +1,18 @@
-﻿namespace ReflexAPI
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Reflection;
+using log4net;
+using ReflexAPI.SteamData;
+using ReflexAPI.Util;
+using SteamInfo.MasterServer;
+using SteamInfo.MasterServer.Filters;
+using SteamInfo.Server;
+using Environment = SteamInfo.Server.Environment;
+
+namespace ReflexAPI
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net;
-    using System.Reflection;
-    using log4net;
-    using ReflexAPI.SteamData;
-    using ReflexAPI.Util;
-    using SteamInfo.MasterServer;
-    using SteamInfo.MasterServer.Filters;
-    using SteamInfo.Server;
-    using Environment = SteamInfo.Server.Environment;
-
-
     /// <summary>
     /// Class responsible for querying the server information from Steam's master server.
     /// </summary>
@@ -50,7 +49,7 @@
 
             try
             {
-                var filter = new Filter { Region = Region.RestOfTheWorld, Game = Game.Reflex };
+                var filter = new Filter {Region = Region.RestOfTheWorld, Game = Game.Reflex};
                 serversReceivedFromMaster = masterServerQuery.GetServers(filter, ReceiveTimeoutMsec);
             }
             catch (Exception ex)
@@ -169,11 +168,11 @@
                 var serverInfo = query.GetServerInfo(ReceiveTimeoutMsec);
                 var playerInfo = query.GetPlayers(ReceiveTimeoutMsec);
                 var players = playerInfo.Players.Select(player => new PlayerData
-                                                                  {
-                                                                      name = player.Name,
-                                                                      score = player.Score,
-                                                                      connectedFor = Math.Round(player.Duration, 2)
-                                                                  }).ToList();
+                {
+                    name = player.Name,
+                    score = player.Score,
+                    connectedFor = Math.Round(player.Duration, 2)
+                }).ToList();
 
                 // Query the SQLite DB for the country info based on the IP
                 var countryInfo = _countryRetriever.GetCountryInfo(serverAddress);
@@ -182,40 +181,43 @@
                 var gametype = serverInfo.ExtraData.Keywords.Split('|');
 
                 var sd = new ServerData
-                         {
-                             serverName = serverInfo.Name,
-                             ip = serverAddress.Address.ToString(),
-                             countryName = countryInfo.countryName,
-                             countryCode = countryInfo.countryCode,
-                             continent = countryInfo.continent,
-                             protocol = serverInfo.Protocol,
-                             map = serverInfo.Map,
-                             game = serverInfo.Game,
-                             playerCount = serverInfo.Players,
-                             maxPlayers = serverInfo.MaxPlayers,
-                             serverType =
-                                 (serverInfo.ServerType == ServerType.Dedicated ? "dedicated" : "listen"),
-                             requiresPassword = serverInfo.RequiresPassword,
-                             hasVacProtection = serverInfo.IsVacProtected,
-                             keywords = serverInfo.ExtraData.Keywords,
-                             version = serverInfo.Version,
-                             bots = serverInfo.Bots,
-                             os =
-                                 (serverInfo.Environment == Environment.Linux
-                                     ? "linux"
-                                     : "windows"),
-                             port = serverInfo.ExtraData.Port,
-                             steamIdServer = serverInfo.ExtraData.SignedServerSteamId,
-                             // The very first server builds ("Reflex Build # ##") do not list
-                             // keywords, so this is needed
-                             gametype =
-                                 ((string.IsNullOrEmpty(serverInfo.ExtraData.Keywords))
-                                     ? ""
-                                     : gametype[0].ToUpper()),
-                             steamIdGame = serverInfo.ExtraData.GameSteamId,
-                             steamPort = serverAddress.Port,
-                             players = players
-                         };
+                {
+                    serverName = serverInfo.Name,
+                    ip = serverAddress.Address.ToString(),
+                    countryName = countryInfo.countryName,
+                    countryCode = countryInfo.countryCode,
+                    continent = countryInfo.continent,
+                    protocol = serverInfo.Protocol,
+                    map = serverInfo.Map,
+                    game = serverInfo.Game,
+                    playerCount = serverInfo.Players,
+                    maxPlayers = serverInfo.MaxPlayers,
+                    serverType =
+                        (serverInfo.ServerType == ServerType.Dedicated ? "dedicated" : "listen"),
+                    requiresPassword = serverInfo.RequiresPassword,
+                    hasVacProtection = serverInfo.IsVacProtected,
+                    keywords = serverInfo.ExtraData.Keywords,
+                    version = serverInfo.Version,
+                    bots = serverInfo.Bots,
+                    os =
+                        (serverInfo.Environment == Environment.Linux
+                            ? "linux"
+                            : "windows"),
+                    port = serverInfo.ExtraData.Port,
+                    steamIdServer = serverInfo.ExtraData.SignedServerSteamId,
+                    // The very first server builds ("Reflex Build # ##") do not list keywords, so
+                    // this is needed
+                    gametype =
+                        ((string.IsNullOrEmpty(serverInfo.ExtraData.Keywords))
+                            ? ""
+                            : gametype[0].ToUpper()),
+                    gametypeFullName = ((string.IsNullOrEmpty(serverInfo.ExtraData.Keywords))
+                        ? "Other"
+                        : GetFullGameTypeName(gametype[0].ToUpper())),
+                    steamIdGame = serverInfo.ExtraData.GameSteamId,
+                    steamPort = serverAddress.Port,
+                    players = players
+                };
                 sData = sd;
             }
             catch (Exception ex)
@@ -227,6 +229,44 @@
             }
 
             return sData;
+        }
+
+        /// <summary>
+        /// Gets the full name of the game type from the short name.
+        /// </summary>
+        /// <param name="shortName">The gametype's short name.</param>
+        /// <returns>The full name of the game type.</returns>
+        private string GetFullGameTypeName(string shortName)
+        {
+            var formattedGameType = "Other";
+            switch (shortName)
+            {
+                case "1V1":
+                    formattedGameType = "Duel";
+                    break;
+                case "A1V1":
+                    formattedGameType = "Arena Duel";
+                    break;
+                case "AFFA":
+                    formattedGameType = "Arena Free For All";
+                    break;
+                case "ATDM":
+                    formattedGameType = "Arena Team Deathmatch";
+                    break;
+                case "CTF":
+                    formattedGameType = "Capture The Flag";
+                    break;
+                case "FFA":
+                    formattedGameType = "Free For All";
+                    break;
+                case "RACE":
+                    formattedGameType = "Race";
+                    break;
+                case "TDM":
+                    formattedGameType = "Team Deathmatch";
+                    break;
+            }
+            return formattedGameType;
         }
     }
 }
