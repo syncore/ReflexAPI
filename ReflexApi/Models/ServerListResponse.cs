@@ -3,7 +3,7 @@
 namespace ReflexAPI.Models
 {
     using System.Collections.Generic;
-    using ReflexAPI.SteamData;
+    using SteamData;
     using ServiceStack;
 
     /// <summary>
@@ -50,6 +50,22 @@ namespace ReflexAPI.Models
         /// </summary>
         /// <value>The response status.</value>
         public ResponseStatus ResponseStatus { get; set; }
+
+        /// <summary>
+        /// Gets or sets the query time.
+        /// </summary>
+        /// <value>
+        /// The query time.
+        /// </value>
+        public string queryTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the query time stamp.
+        /// </summary>
+        /// <value>
+        /// The query time stamp.
+        /// </value>
+        public double queryTimeStamp { get; set; }
 
         /// <summary>
         /// Gets or sets the servers that are to be returned.

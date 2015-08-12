@@ -1,7 +1,7 @@
 ﻿namespace ReflexAPI.Models
 {
     using System.Collections.Generic;
-    using ReflexAPI.Enum;
+    using Enum;
     using ServiceStack;
 
     /// <summary>

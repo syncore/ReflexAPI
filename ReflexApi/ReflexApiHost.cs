@@ -9,7 +9,7 @@ namespace ReflexAPI
     using log4net.Config;
     using Quartz;
     using Quartz.Impl;
-    using ReflexAPI.Util;
+    using Util;
     using ServiceStack;
 
     /// <summary>
@@ -18,18 +18,20 @@ namespace ReflexAPI
     public class ReflexAPIAppHost : AppSelfHostBase
     {
         private const int SecsWaitBeforeInitialRetrieval = 10;
-        private const int DoRetrievalEverySecs = 90;
+        private readonly int _secsBetweenMasterQuery;
         private readonly IScheduler _scheduler = StdSchedulerFactory.GetDefaultScheduler();
 
         /// <summary>
         /// Initializes a new instance of the ServiceStack application, with the specified name and assembly containing the services.
         /// </summary>
-        public ReflexAPIAppHost()
+        public ReflexAPIAppHost(int secsBetweenMasterQuery)
             : base("Reflex Server API by syncore", typeof(ReflexAPIAppHost).Assembly)
         {
+            _secsBetweenMasterQuery = secsBetweenMasterQuery;
             LoggerUtil.LogInfoAndDebug(
-                string.Format("ReflexApiAppHost Init() called. Initial server list retrieval shoud occur in roughly {0} seconds.",
-                SecsWaitBeforeInitialRetrieval), MethodBase.GetCurrentMethod().DeclaringType);
+                string.Format("ReflexApiAppHost Init() called. Initial server list retrieval shoud occur in roughly {0} seconds and will" +
+                              " occur every {1} seconds thereafter.",
+                SecsWaitBeforeInitialRetrieval, secsBetweenMasterQuery), MethodBase.GetCurrentMethod().DeclaringType);
 
             DoStartupActivities();
         }
@@ -98,12 +100,12 @@ namespace ReflexAPI
             // Define a scheduled job, tied to the ServerQueryJob class.
             var srvListReqJob = JobBuilder.Create<ServerQueryJob>().WithIdentity("job1", "group1").Build();
 
-            // Trigger the job (server list retrieval) to run 10 seconds from now, then every 90
+            // Trigger the job (server list retrieval) to run 10 seconds from now, then every X
             // seconds after that, forever
             var srvListReqTrigger = TriggerBuilder.Create()
                 .WithIdentity("trigger1", "group1")
                 .StartAt(DateBuilder.FutureDate(SecsWaitBeforeInitialRetrieval, IntervalUnit.Second))
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(DoRetrievalEverySecs).
+                .WithSimpleSchedule(x => x.WithIntervalInSeconds(_secsBetweenMasterQuery).
                     RepeatForever())
                     .Build();
 

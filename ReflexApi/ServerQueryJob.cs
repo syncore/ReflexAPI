@@ -3,7 +3,7 @@
     using System;
     using System.Reflection;
     using Quartz;
-    using ReflexAPI.Util;
+    using Util;
 
     /// <summary>
     /// Quartz Job class responsible for calling the ServerQueryProcessor at timed intervals to

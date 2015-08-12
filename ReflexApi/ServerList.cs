@@ -1,7 +1,7 @@
 ﻿namespace ReflexAPI
 {
     using System.Collections.Generic;
-    using ReflexAPI.SteamData;
+    using SteamData;
 
     /// <summary>
     /// Static class that holds an in-memory representation of the current server list and servers
@@ -21,5 +21,21 @@
         /// </summary>
         /// <value>The failed servers.</value>
         public static List<string> FailedServers { get; set; }
+
+        /// <summary>
+        /// Gets or sets the query time.
+        /// </summary>
+        /// <value>
+        /// The query time.
+        /// </value>
+        public static string QueryTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the query time stamp.
+        /// </summary>
+        /// <value>
+        /// The query time stamp.
+        /// </value>
+        public static double QueryTimeStamp { get; set; }
     }
 }

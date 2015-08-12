@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -72,7 +73,15 @@ namespace ReflexAPI
                 var sd = CreateServerDataInfo(server);
                 if (sd != null)
                 {
-                    serversToReturn.Add(sd);
+                    // Reflex doesn't allow blank names
+                    if (sd.players.Any(player => player.name.Equals("")))
+                    {
+                        failedServers.Add(string.Format("{0}:{1}", server.Address, server.Port));
+                    }
+                    else
+                    {
+                        serversToReturn.Add(sd);
+                    }
                 }
                 else
                 {
@@ -85,6 +94,10 @@ namespace ReflexAPI
 
             ServerList.AllServers = serversToReturn;
             ServerList.FailedServers = failedServers;
+            ServerList.QueryTime = DateTime.Now.ToString("f", CultureInfo.CreateSpecificCulture("en-US"));
+            ServerList.QueryTimeStamp = Math.Floor((DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds);
+
+
 
             Logger.Info(string.Format("Finished query of {0}/{1} servers; total failed: {2}", queryNum,
                 TotalServers, failedServers.Count));
@@ -108,7 +121,15 @@ namespace ReflexAPI
                 var queried = CreateServerDataInfo(server);
                 if (queried != null)
                 {
-                    successful.Add(queried);
+                    // Reflex doesn't allow blank names
+                    if (queried.players.Any(player => player.name.Equals("")))
+                    {
+                        failed.Add(string.Format("{0}:{1}", server.Address, server.Port));
+                    }
+                    else
+                    {
+                        successful.Add(queried);
+                    }
                 }
                 else
                 {
@@ -120,6 +141,10 @@ namespace ReflexAPI
             }
             results.servers = successful;
             results.failedServers = failed;
+            results.queryTime = DateTime.Now.ToString("f", CultureInfo.CreateSpecificCulture("en-US"));
+            results.queryTimestamp =
+                Math.Floor(
+                    (DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds);
             return results;
         }
 
@@ -136,7 +161,15 @@ namespace ReflexAPI
             var queried = CreateServerDataInfo(serverToQuery);
             if (queried != null)
             {
-                successful.Add(queried);
+                // Reflex doesn't allow blank names
+                if (queried.players.Any(player => player.name.Equals("")))
+                {
+                    failed.Add(string.Format("{0}:{1}", serverToQuery.Address, serverToQuery.Port));
+                }
+                else
+                {
+                    successful.Add(queried);
+                }
             }
             else
             {
@@ -148,6 +181,10 @@ namespace ReflexAPI
 
             results.servers = successful;
             results.failedServers = failed;
+            results.queryTime = DateTime.Now.ToString("f", CultureInfo.CreateSpecificCulture("en-US"));
+            results.queryTimestamp =
+                Math.Floor(
+                    (DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalSeconds);
             return results;
         }
 

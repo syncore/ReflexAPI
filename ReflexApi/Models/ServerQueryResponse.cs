@@ -3,7 +3,7 @@
 namespace ReflexAPI.Models
 {
     using System.Collections.Generic;
-    using ReflexAPI.SteamData;
+    using SteamData;
 
     /// <summary>
     /// Class that contains the data to be sent in the response to the user's server query request.

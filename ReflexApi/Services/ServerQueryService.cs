@@ -5,8 +5,8 @@
     using System.Linq;
     using System.Net;
     using System.Reflection;
-    using ReflexAPI.Models;
-    using ReflexAPI.Util;
+    using Models;
+    using Util;
     using ServiceStack;
 
     /// <summary>

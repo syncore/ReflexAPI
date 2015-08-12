@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using ReflexAPI.Enum;
-    using ReflexAPI.Models;
-    using ReflexAPI.SteamData;
+    using Enum;
+    using Models;
+    using SteamData;
     using ServiceStack;
-
+    
     /// <summary>
     /// Class responsible for handling a user's server list request. This class will generally
     /// receive a user's server list request, determine if the request has any filters, and return
@@ -172,8 +172,10 @@
             return new ServerListResponse
                    {
                        count = filteredServers.Count,
-                       servers = filteredServers
-                   };
+                       servers = filteredServers,
+                       queryTime = ServerList.QueryTime,
+                       queryTimeStamp = ServerList.QueryTimeStamp
+            };
         }
 
         /// <summary>
@@ -198,6 +200,8 @@
                    {
                        count = ServerList.AllServers.Count,
                        servers = ServerList.AllServers,
+                       queryTime = ServerList.QueryTime,
+                       queryTimeStamp = ServerList.QueryTimeStamp,
                        failedCount = ServerList.FailedServers.Count,
                        failedServers = ServerList.FailedServers
                    };
