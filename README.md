@@ -1,8 +1,10 @@
 # ReflexAPI
 
-ReflexAPI is a lightweight .NET (C#) back end web service that allows users to retrieve current [Reflex] server data from Valve Software's Steam Master Server. It runs as a standalone console application and does use an ASP.NET setup. It is capable of returning the server information as JSON (default), XML, as well as in other formats.
+ReflexAPI is a lightweight .NET (C#) back end web service that allows users to retrieve current [Reflex] server data from Valve Software's Steam Master Server. It runs as a standalone console application and does not use an ASP.NET setup. It is capable of returning the server information as JSON (default), XML, as well as in other formats.
 
-This is the back end service that is currently providing data to my Reflex Server Browser at: http://reflex.syncore.org
+# :rotating_light: Note: This project has been replaced by my newer project written in go, [a2sapi](https://www.github.com/syncore/a2sapi), that supports more games and features. It is no longer being updated. :rotating_light:
+
+~~This is the back end service that is currently providing data to my Reflex Server Browser at: http://reflex.syncore.org~~
 
 Pull requests are welcome!
 
